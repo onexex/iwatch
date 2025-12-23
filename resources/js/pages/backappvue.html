@@ -7,43 +7,14 @@
                 
                 <div id="map" class="h-full w-full"></div>
 
-                <div v-if="!isHeatmapEnabled && categoryStats.length > 0" 
-                     class="absolute bottom-6 left-3 z-[1000] rounded-xl border bg-background/90 p-4 shadow-xl backdrop-blur-md min-w-[170px] pointer-events-auto">
-                    
-                    <h4 class="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Classification Filter</h4>
-                    
-                    <div class="space-y-2.5">
-                        <label v-for="cat in categoryStats" :key="cat.name" 
-                               class="flex items-center justify-between group cursor-pointer">
-                            
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" 
-                                       :value="cat.name" 
-                                       v-model="activeCategories"
-                                       @change="updateMapVisualization"
-                                       class="peer hidden" />
-                                
-                                <div class="h-4 w-4 rounded border border-muted-foreground/30 flex items-center justify-center transition-all shadow-sm"
-                                     :class="activeCategories.includes(cat.name) ? cat.bgClass : 'bg-transparent'">
-                                    <svg v-if="activeCategories.includes(cat.name)" class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-
-                                <span class="text-[11px] font-bold text-foreground/80 group-hover:text-foreground transition-colors">
-                                    {{ cat.name }}
-                                </span>
-                            </div>
-
-                            <span class="text-[10px] font-mono font-bold bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                {{ cat.count }}
-                            </span>
-                        </label>
-                    </div>
-
-                    <div class="mt-4 pt-2 border-t border-border/50 flex justify-between">
-                        <button @click="selectAllCategories" class="text-[9px] font-black uppercase text-red-600 hover:underline">All</button>
-                        <button @click="clearCategories" class="text-[9px] font-black uppercase text-muted-foreground hover:underline">None</button>
+                <div v-if="!isHeatmapEnabled" class="absolute bottom-6 left-6 z-[1000] rounded-lg border bg-background/90 p-3 shadow-sm backdrop-blur">
+                    <h4 class="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Classification</h4>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2 text-[11px] font-medium"><span class="h-3 w-3 rounded-full bg-[#dc2626]"></span> TG1</div>
+                        <div class="flex items-center gap-2 text-[11px] font-medium"><span class="h-3 w-3 rounded-full bg-[#2563eb]"></span> TG2</div>
+                        <div class="flex items-center gap-2 text-[11px] font-medium"><span class="h-3 w-3 rounded-full bg-black"></span> CISS</div>
+                        <div class="flex items-center gap-2 text-[11px] font-medium"><span class="h-3 w-3 rounded-full bg-[#eab308]"></span> Wanted</div>
+                        <div class="flex items-center gap-2 text-[11px] font-medium"><span class="h-3 w-3 rounded-full bg-[#16a34a]"></span> Other</div>
                     </div>
                 </div>
 
@@ -75,15 +46,16 @@
                         </div>
                     </div>
                 </div>
-
                 <button 
                     @click="showFullList = !showFullList"
                     class="absolute top-4 right-4 z-[1000] flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-bold shadow-md hover:bg-gray-50 dark:bg-slate-900"
                 >
                     <span>📋 View List ({{ searchedIncidents.length }})</span>
                 </button>
+          
 
                 <div class="absolute top-6 left-3 z-[1000] flex w-72 md:w-80 flex-col gap-4 pointer-events-auto">
+                    
                     <div class="rounded-xl border bg-card/90 backdrop-blur-md shadow-xl ring-1 ring-black/5 overflow-hidden">
                         <div 
                             @click="isSidebarCollapsed = !isSidebarCollapsed" 
@@ -105,8 +77,8 @@
                                 <span class="text-xs font-medium">Heatmap View</span>
                                 <button 
                                     @click.stop="toggleHeatmap" 
-                                    :class="[isHeatmapEnabled ? 'bg-red-600' : 'bg-slate-300']"
-                                    class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors outline-none"
+                                    :class="[isHeatmapEnabled ? 'bg-orange-600' : 'bg-slate-300']"
+                                    class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors"
                                 >
                                     <span :class="[isHeatmapEnabled ? 'translate-x-5' : 'translate-x-1']" class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform" />
                                 </button>
@@ -128,62 +100,66 @@
 
                                 <button 
                                     @click="exportToCSV"
-                                    :disabled="searchedIncidents.length === 0"
+                                    :disabled="filteredIncidents.length === 0"
                                     class="w-full mt-2 flex items-center justify-center gap-2 rounded border border-green-600/30 bg-green-50/80 px-2 py-2 text-[11px] font-bold text-green-700 hover:bg-green-100 disabled:opacity-50"
                                 >
-                                    📥 Export ({{ searchedIncidents.length }})
+                                    📥 Export ({{ filteredIncidents.length }})
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="selectedIncident" 
-                        class="animate-in slide-in-from-left duration-300 rounded-xl border bg-card/95 backdrop-blur-md p-4 shadow-xl ring-2 ring-primary/10 max-h-[400px] overflow-y-auto pointer-events-auto">
-                        
-                        <div class="sticky top-0 bg-card/0 pb-2 mb-2 flex items-start justify-between border-b border-border/50">
-                            <h3 class="text-lg font-bold">Incident Details</h3>
-                            <button @click="selectedIncident = null" class="text-muted-foreground hover:text-foreground p-1 text-lg">✕</button>
+                <div v-if="selectedIncident" 
+                    class="animate-in slide-in-from-left duration-300 rounded-xl border bg-card/95 backdrop-blur-md p-4 shadow-xl ring-2 ring-primary/10 max-h-[400px] overflow-y-auto pointer-events-auto">
+                    
+                    <div class="sticky top-0 bg-card/0 pb-2 mb-2 flex items-start justify-between border-b border-border/50">
+                        <h3 class="text-lg font-bold">Incident Details</h3>
+                        <button @click="selectedIncident = null" class="text-muted-foreground hover:text-foreground p-1 text-lg">✕</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="rounded-lg bg-red-500/10 p-3 border border-red-500/20">
+                            <label class="text-[10px] font-bold uppercase text-muted-foreground">Barangay</label>
+                            <p class="text-sm font-semibold text-red-600">{{ selectedIncident.barangay?.ADM4_EN }}</p>
                         </div>
                         
-                        <div class="space-y-4">
-                            <div class="rounded-lg bg-red-500/10 p-3 border border-red-500/20">
-                                <label class="text-[10px] font-bold uppercase text-muted-foreground">Barangay</label>
-                                <p class="text-sm font-semibold text-red-600">{{ selectedIncident.barangay?.ADM4_EN }}</p>
-                            </div>
-                            
-                            <div>
-                                <label class="text-[10px] font-bold uppercase text-muted-foreground">Narrative</label>
-                                <p class="text-xs leading-relaxed text-foreground/80 mt-1 whitespace-pre-wrap">
-                                    {{ selectedIncident.description }}
-                                </p>
-                            </div>
-                            
-                            <div class="pt-2 border-t border-border/50">
-                                <p class="text-[10px] text-muted-foreground italic">
-                                    📅 Recorded: {{ new Date(selectedIncident.created_at).toLocaleString() }}
-                                </p>
-                            </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-muted-foreground">Narrative</label>
+                            <p class="text-xs leading-relaxed text-foreground/80 mt-1 whitespace-pre-wrap">
+                                {{ selectedIncident.description }}
+                            </p>
+                        </div>
+                        
+                        <div class="pt-2 border-t border-border/50">
+                            <p class="text-[10px] text-muted-foreground italic">
+                                📅 Recorded: {{ new Date(selectedIncident.created_at).toLocaleString() }}
+                            </p>
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
+
+              </div>
         </div>
     </AppLayout>
 </template>
 
 <script lang="ts">
+    const isSidebarCollapsed = ref(false);
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { type BreadcrumbItem } from '@/types';
-import { defineComponent, onMounted, ref, computed, watch } from 'vue';
+import { defineComponent, onMounted, ref, computed } from 'vue';
  
 import * as L from 'leaflet';
-import 'leaflet.heat';
+import 'leaflet.heat'; // Add this import here
+
 
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
+
 
 interface BarangayProperties {
     ADM4_EN: string;
@@ -198,16 +174,17 @@ interface Incident {
     type: string; 
     created_at: string; 
     barangay: BarangayProperties; 
+    
 }
         
 export default defineComponent({
-    name: 'MapView',
-    components: { AppLayout, Head },
-    data() {
+    data(){
         return {
             isSidebarCollapsed: false,
         }
     },
+    name: 'MapView',
+    components: { AppLayout, Head },
     setup() {
         const breadcrumbs: BreadcrumbItem[] = [
             { title: 'Messages', href: '/sms' },
@@ -221,14 +198,12 @@ export default defineComponent({
         const isHeatmapEnabled = ref(false);
         const filters = ref({ startDate: '', endDate: '' });
         
-        // NEW: Checkbox state for classifications
-        const activeCategories = ref<string[]>([]);
-
+       
         let map: L.Map;
         let markers: L.MarkerClusterGroup;
         let heatLayer: any = null;
 
-        // Reactive Filtering Logic (Dates)
+        // Reactive Filtering Logic
         const filteredIncidents = computed(() => {
             if (!filters.value.startDate || !filters.value.endDate) return allIncidents.value;
             const start = new Date(filters.value.startDate).setHours(0,0,0,0);
@@ -239,30 +214,14 @@ export default defineComponent({
             });
         });
 
-        // Combined Filtering (Dates + Search + Classification Checkboxes)
         const searchedIncidents = computed(() => {
             const query = searchQuery.value.toLowerCase().trim();
-            
-            return filteredIncidents.value.filter(inc => {
-                const matchesSearch = !query || 
-                    inc.description.toLowerCase().includes(query) || 
-                    inc.barangay?.ADM4_EN?.toLowerCase().includes(query) ||
-                    inc.id.toString().includes(query);
-
-                const matchesCategory = activeCategories.value.length === 0 || activeCategories.value.includes(inc.type);
-
-                return matchesSearch && matchesCategory;
-            });
-        });
-
-        // Legend logic with counts
-        const categoryStats = computed(() => {
-            const types = [...new Set(allIncidents.value.map(i => i.type))].filter(Boolean);
-            return types.map(type => ({
-                name: type,
-                count: allIncidents.value.filter(i => i.type === type).length,
-                bgClass: getCategoryBg(type)
-            })).sort((a, b) => b.count - a.count);
+            if (!query) return filteredIncidents.value;
+            return filteredIncidents.value.filter(inc => 
+                inc.description.toLowerCase().includes(query) || 
+                inc.barangay?.ADM4_EN?.toLowerCase().includes(query) ||
+                inc.id.toString().includes(query)
+            );
         });
 
         const getCategoryColor = (type: string) => {
@@ -308,19 +267,20 @@ export default defineComponent({
         };
 
         const updateMapVisualization = () => {
-            if (!map) return;
             if (markers) markers.clearLayers();
             if (heatLayer) map.removeLayer(heatLayer);
 
             if (isHeatmapEnabled.value) {
+                // Ensure values are numbers for the heatmap
                 const heatPoints = searchedIncidents.value
                     .filter(inc => inc.barangay?.latitude && inc.barangay?.longitude)
                     .map(inc => [
                         Number(inc.barangay.latitude), 
                         Number(inc.barangay.longitude), 
-                        0.7 
+                        0.7 // intensity
                     ]);
 
+                // Access via (L as any) to avoid TypeScript errors
                 if ((L as any).heatLayer) {
                     heatLayer = (L as any).heatLayer(heatPoints, {
                         radius: 25,
@@ -345,17 +305,6 @@ export default defineComponent({
             filters.value.endDate = '';
             searchQuery.value = '';
             isHeatmapEnabled.value = false;
-            activeCategories.value = [...new Set(allIncidents.value.map(i => i.type))].filter(Boolean);
-            updateMapVisualization();
-        };
-
-        const selectAllCategories = () => {
-            activeCategories.value = categoryStats.value.map(s => s.name);
-            updateMapVisualization();
-        };
-
-        const clearCategories = () => {
-            activeCategories.value = [];
             updateMapVisualization();
         };
 
@@ -379,23 +328,17 @@ export default defineComponent({
             map.setView([incident.barangay.latitude, incident.barangay.longitude], 16);
         };
 
-        // Initialize checkboxes when data loads
-        watch(allIncidents, (newVal) => {
-            if (newVal.length > 0 && activeCategories.value.length === 0) {
-                activeCategories.value = [...new Set(newVal.map(i => i.type))].filter(Boolean);
-            }
-        }, { immediate: true });
-
         onMounted(async () => {
             map = L.map('map', { zoomControl: false }).setView([8.1541, 123.2588], 8);
-            
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(map);
+                  // Layer Styles
             const googleStyle = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                 maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '© Google'
             });
             const darkStyle = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
             const voyagerStyle = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
 
-            googleStyle.addTo(map);
+            googleStyle.addTo(map); // Default
 
             const baseMaps = {
                 "Standard": googleStyle,
@@ -403,24 +346,21 @@ export default defineComponent({
                 "Voyager": voyagerStyle 
             };
 
-            L.control.layers(baseMaps, {} , { position: 'bottomright' }).addTo(map);
+         L.control.layers(baseMaps, {} , {
+            position: 'bottomright' // You can also use 'bottomleft'
+        }).addTo(map);
             markers = (L as any).markerClusterGroup();
             map.addLayer(markers);
 
-            try {
-                const res = await fetch('/mapping_incidents');
-                allIncidents.value = await res.json();
-                updateMapVisualization();
-            } catch (error) {
-                console.error("Failed to fetch incidents:", error);
-            }
+            const res = await fetch('/mapping_incidents');
+            allIncidents.value = await res.json();
+            updateMapVisualization();
         });
 
         return { 
             breadcrumbs, selectedIncident, allIncidents, searchedIncidents, filteredIncidents,
             showFullList, focusIncident, getCategoryBg, filters, applyFilters, resetFilters,
-            exportToCSV, searchQuery, isHeatmapEnabled, toggleHeatmap, 
-            activeCategories, categoryStats, selectAllCategories, clearCategories, updateMapVisualization
+            exportToCSV, searchQuery, isHeatmapEnabled, toggleHeatmap
         };
     },
 });
