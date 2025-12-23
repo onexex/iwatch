@@ -109,9 +109,34 @@
         </div>
     </div>
 
-    <div v-if="selectedIncident" 
-         class="animate-in slide-in-from-left duration-300 rounded-xl border bg-card/95 backdrop-blur-md p-4 shadow-xl ring-2 ring-primary/10 max-h-[400px] overflow-y-auto">
+   <div v-if="selectedIncident" 
+     class="animate-in slide-in-from-left duration-300 rounded-xl border bg-card/95 backdrop-blur-md p-4 shadow-xl ring-2 ring-primary/10 max-h-[400px] overflow-y-auto pointer-events-auto">
+    
+    <div class="sticky top-0 bg-card/0 pb-2 mb-2 flex items-start justify-between border-b border-border/50">
+        <h3 class="text-lg font-bold">Incident Details</h3>
+        <button @click="selectedIncident = null" class="text-muted-foreground hover:text-foreground p-1 text-lg">✕</button>
+    </div>
+    
+    <div class="space-y-4">
+        <div class="rounded-lg bg-red-500/10 p-3 border border-red-500/20">
+            <label class="text-[10px] font-bold uppercase text-muted-foreground">Barangay</label>
+            <p class="text-sm font-semibold text-red-600">{{ selectedIncident.barangay?.ADM4_EN }}</p>
         </div>
+        
+        <div>
+            <label class="text-[10px] font-bold uppercase text-muted-foreground">Narrative</label>
+            <p class="text-xs leading-relaxed text-foreground/80 mt-1 whitespace-pre-wrap">
+                {{ selectedIncident.description }}
+            </p>
+        </div>
+        
+        <div class="pt-2 border-t border-border/50">
+            <p class="text-[10px] text-muted-foreground italic">
+                📅 Recorded: {{ new Date(selectedIncident.created_at).toLocaleString() }}
+            </p>
+        </div>
+    </div>
+</div>
 </div>
 
               </div>
@@ -151,8 +176,6 @@ interface Incident {
     
 }
         
-
-
 export default defineComponent({
     data(){
         return {
@@ -173,8 +196,7 @@ export default defineComponent({
         const searchQuery = ref('');
         const isHeatmapEnabled = ref(false);
         const filters = ref({ startDate: '', endDate: '' });
-  
-        
+       
         let map: L.Map;
         let markers: L.MarkerClusterGroup;
         let heatLayer: any = null;
