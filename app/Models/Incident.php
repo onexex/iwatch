@@ -60,6 +60,11 @@ class Incident extends Model
         return $this->belongsTo(Barangay::class, 'address_id');
     }
 
+    public function classification(): BelongsTo
+    {
+        return $this->belongsTo(Classification::class, 'classification_id');
+    }
+
     /**
      * Accessor: Useful for the Vue Map to get coordinates easily.
      * Use this if your Barangay model has 'latitude' and 'longitude'.
