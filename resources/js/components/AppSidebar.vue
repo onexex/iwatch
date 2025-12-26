@@ -36,7 +36,7 @@ const mainNavItems: NavItem[] = [
 
      {
         title: 'Processed Messages',
-        href: '/processed-sms',
+        href: '/processed-messages',
         icon: MessageSquare,
     },
      {
