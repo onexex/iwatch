@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use App\Models\SmsMessage;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SMS\SmsController;
 use App\Http\Controllers\IncidentController;
 
 Route::get('/', function () {
@@ -20,18 +21,12 @@ Route::get('mapping', function () {
     return Inertia::render('IncidentMap');
 })->middleware(['auth', 'verified'])->name('mapping');
 
-Route::get('/sms', function () {
-    // Fetch messages from the database
-    $messages = SmsMessage::orderBy('created_at', 'desc')->get(); // adjust query as needed
-
-    // Pass messages to Inertia
-    return Inertia::render('Sms', [
-        'messages' => $messages
-    ]);
-})->middleware(['auth', 'verified'])->name('sms');
 
 Route::get('/mapping_incidents', [IncidentController::class, 'index']);
-
  
+Route::middleware('auth', 'verified')->group(function () {
+    Route::get('/sms', [SmsController::class, 'index'])->name('sms');
+
+});
 
 require __DIR__.'/settings.php';
