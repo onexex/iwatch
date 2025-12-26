@@ -20,6 +20,22 @@ class Incident extends Model
         'address_id',
         'description',
         'type',
+        'classification_id',
+        'file_number',
+        'reference',
+        'subject',
+        'date_of_report',
+        'reporter',
+        'designation',
+        'evaluation',
+        'source',
+        'date_acquired',
+        'manner_acquired',
+        'information_proper',
+        'analysis',
+        'actions',
+        'attachment',
+        'created_by',
     ];
 
     /**

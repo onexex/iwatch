@@ -9,6 +9,8 @@ const props = defineProps<{
   class?: HTMLAttributes["class"]
   label?: string
   type?: string
+  required?: boolean
+  error?: string
 }>()
 
 const emits = defineEmits<{
@@ -28,6 +30,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
       for="label"
     >
       {{ label }}
+      <span v-if="required" class="text-red-500">*</span>
     </label>
     <input
       v-model="modelValue"
@@ -40,5 +43,11 @@ const modelValue = useVModel(props, "modelValue", emits, {
       )"
       :type="type"
     >
+    <span
+      v-if="error"
+      class="mt-1 text-sm text-destructive"
+    >
+      {{ error }}
+    </span>
   </div>
 </template>

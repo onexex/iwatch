@@ -31,7 +31,8 @@
     SelectTrigger,
     SelectValue,
   } from '@/components/ui/select'
-  
+  import { Textarea } from '@/components/ui/textarea'
+
 
   defineProps<{
     messages: {
@@ -56,6 +57,11 @@
       'city_municipality': string,
       'province': string,
     }[],
+    classifications: {
+      id: number,
+      name: string,
+      other: number,
+    }[],
   }>() 
 
   const form = useForm({
@@ -66,7 +72,7 @@
     file_number: '',
     reference: '',
     subject: '',
-    dateOfReportee: '',
+    dateOfReport: '',
     reporter: '',
     designation: '',
     evaluation: '',
@@ -77,6 +83,7 @@
     analysis: '',
     actions: '',
     attachment: [],
+    classificationId: null as number | null,
     selectedRegion: '',
     selectedProvince: '',
     selectedCity: '',
@@ -88,6 +95,25 @@
     form.smsinformation = item.message
     form.receivedAt = item.received_at
     form.smsId = item.id
+  }
+
+  const submit = () => {
+    form.errors = {}
+    if (!form.classificationId) {
+      form.errors.classificationId = 'Classification is required.'
+      return
+    }
+
+    if (!form.selectedBarangay) {
+      form.errors.selectedBarangay = 'Barangay is required.'
+      return
+    }
+
+    form.post('/sms/fetch-message', {
+      onSuccess: () => {
+        form.reset()
+      },
+    })
   }
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -163,32 +189,36 @@
             </DialogHeader>
             
             <div
-              class="grid gap-2 grid-cols-2"
+              class="grid gap-2 grid-cols-3"
             >
-              <div>
+              <div class="col-span-1 md:col-span-1">
                 <p>SMS Information</p>
                 <p>Received At : {{ form.receivedAt }}</p>
                 <p>{{ form.smsinformation }}</p>
               </div>
-              <div>
+              <div class="col-span-2 md:col-span-2">
                 <Input 
                   v-model="form.file_number"
                   label="File Number"
                   class="mb-4"
+                  :required="true"
                 />
                 <Input 
                   v-model="form.reference"
                   label="Reference"
                   class="mb-4"
+                  :required="true"
                 />
                 <Input 
                   v-model="form.subject"
                   label="Subject"
                   class="mb-4"
+                  :required="true"
                 />
                 <Input 
-                  v-model="form.dateOfReportee"
-                  label="Date of Reportee"
+                  v-model="form.dateOfReport"
+                  label="Date of Report"
+                  :required="true"
                   class="mb-4"
                   type="date"
                 />
@@ -216,16 +246,18 @@
                   v-model="form.dateAcquired"
                   label="Date Acquired"
                   class="mb-4"
+                  type="date"
                 />
                 <Input 
                   v-model="form.mannerAcquired"
                   label="Manner Acquired"
                   class="mb-4"
                 />
-                <Input 
+                <Textarea 
                   v-model="form.informationProper"
                   label="Information Proper"
                   class="mb-4"
+                  :required="true"
                 />
                 <Input 
                   v-model="form.analysis"
@@ -237,11 +269,39 @@
                   label="Actions"
                   class="mb-4"
                 />
+                
+                <Select
+                  v-model="form.classificationId"
+                  :error="form.errors.classificationId"
+                >
+                  <label 
+                    class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Classification
+                  </label>
+                  <SelectTrigger class="w-full">
+                    <SelectValue placeholder="Select a classification" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Classification</SelectLabel>
+                      <template 
+                        v-for="classification in classifications"
+                        :key="classification.id"
+                      >
+                        <SelectItem :value="classification.id">
+                          {{ classification.name }}
+                        </SelectItem>
+                      </template>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
                 <Select
                   v-model="form.selectedRegion"
                 >
                   <label 
-                    class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    class="mb-2 mt-4 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Region
                   </label>
@@ -317,6 +377,7 @@
 
                 <Select
                   v-model="form.selectedBarangay"
+                  :error="form.errors.selectedBarangay"
                 >
                   <label 
                     class="mb-2 mt-4 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -348,7 +409,13 @@
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
               <Button
-                type="submit">Save</Button>
+                @click="submit()"
+                type="submit"
+                class="cursor-pointer"
+                :class="form.processing ? 'disabled cursor-not-allowed' : ''"
+              >
+                Save
+              </Button>
             </DialogFooter>
           </DialogContent>
       </Dialog>

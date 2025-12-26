@@ -26,7 +26,7 @@ Route::get('/mapping_incidents', [IncidentController::class, 'index']);
  
 Route::middleware('auth', 'verified')->group(function () {
     Route::get('/sms', [SmsController::class, 'index'])->name('sms');
-
+    Route::post('/sms/fetch-message', [SmsController::class, 'store'])->name('sms.fetchMessages');
 });
 
 require __DIR__.'/settings.php';
