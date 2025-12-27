@@ -41,8 +41,8 @@ defineProps<{
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
                     <Input
+                        label="Email address"
                         id="email"
                         type="email"
                         name="email"
@@ -57,7 +57,7 @@ defineProps<{
 
                 <div class="grid gap-2">
                     <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
+                        <Label for="password"></Label>
                         <TextLink
                             v-if="canResetPassword"
                             :href="request()"
@@ -68,6 +68,7 @@ defineProps<{
                         </TextLink>
                     </div>
                     <Input
+                        label="Password"
                         id="password"
                         type="password"
                         name="password"

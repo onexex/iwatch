@@ -11,6 +11,10 @@ const props = defineProps<{
   type?: string
   required?: boolean
   error?: string
+  name?: string
+  id?: string
+  placeholder?: string
+  autofocus?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -42,6 +46,10 @@ const modelValue = useVModel(props, "modelValue", emits, {
         props.class,
       )"
       :type="type"
+      :name="name"
+      :id="id"
+      :placeholder="placeholder"
+      :autofocus="autofocus"
     >
     <span
       v-if="error"
