@@ -1,6 +1,26 @@
+
+<style>/* Custom Cluster Look */
+.my-custom-cluster {
+    background-color: rgba(59, 130, 246, 0.6); /* Blue with transparency */
+    border-radius: 50%;
+}
+.my-custom-cluster div {
+    width: 30px;
+    height: 30px;
+    margin-left: 5px;
+    margin-top: 5px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: #2563eb; /* Darker blue center */
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}</style>
 <template>
     <Head title="Verified Incident Tracker" />
-
+    
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4 md:flex-row">
             <div class="relative min-h-[500px] flex-1 overflow-hidden rounded-xl border bg-muted/50">
@@ -395,7 +415,8 @@ export default defineComponent({
             const darkStyle = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
             const voyagerStyle = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
 
-            googleStyle.addTo(map);
+            // googleStyle.addTo(map);
+            voyagerStyle.addTo(map);
 
             const baseMaps = {
                 "Standard": googleStyle,
@@ -403,9 +424,29 @@ export default defineComponent({
                 "Voyager": voyagerStyle 
             };
 
-            L.control.layers(baseMaps, {} , { position: 'bottomright' }).addTo(map);
-            markers = (L as any).markerClusterGroup();
-            map.addLayer(markers);
+            // L.control.layers(baseMaps, {} , { position: 'bottomright' }).addTo(map);
+            // markers = (L as any).markerClusterGroup();
+            // map.addLayer(markers);
+
+            L.control.layers(baseMaps, {}, { position: 'bottomright' }).addTo(map);
+
+// Initialize with a custom icon function
+markers = (L as any).markerClusterGroup({
+    iconCreateFunction: function(cluster: any) {
+        const count = cluster.getChildCount();
+        
+        // Return a custom DivIcon
+        return L.divIcon({
+            html: `<div><span>${count}</span></div>`,
+            className: 'my-custom-cluster', // Use our CSS class here
+            iconSize: L.point(40, 40)
+        });
+    }
+});
+
+map.addLayer(markers);
+
+            // markers = L.layerGroup().addTo(map);
 
             try {
                 const res = await fetch('/mapping_incidents');
@@ -427,6 +468,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 </style>

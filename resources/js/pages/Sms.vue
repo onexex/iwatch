@@ -1,28 +1,20 @@
 <script setup lang="ts">
-  import AppLayout from '@/layouts/AppLayout.vue'
-  import { Head, useForm } from '@inertiajs/vue3'
-  import { type BreadcrumbItem } from '@/types'
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/vue3';
 
-  // shadcn/ui table components
-  import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from '@/components/ui/table'
-  import {
+// shadcn/ui table components
+import Button from '@/components/ui/button/Button.vue';
+import {
     Dialog,
     DialogClose,
     DialogContent,
     DialogFooter,
     DialogHeader,
     DialogTitle,
-  } from "@/components/ui/dialog"
-  import Button from '@/components/ui/button/Button.vue'
-  import Input from '@/components/ui/input/Input.vue'
-  import {
+} from '@/components/ui/dialog';
+import Input from '@/components/ui/input/Input.vue';
+import {
     Select,
     SelectContent,
     SelectGroup,
@@ -30,41 +22,48 @@
     SelectLabel,
     SelectTrigger,
     SelectValue,
-  } from '@/components/ui/select'
-  import { Textarea } from '@/components/ui/textarea'
+} from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 
-
-  defineProps<{
+defineProps<{
     messages: {
-      id: number
-      sender: string
-      message: string
-      received_at: string
-    }[],
+        id: number;
+        sender: string;
+        message: string;
+        received_at: string;
+    }[];
     provinces: {
-      'province': string,
-      'region': string,
-    }[],
+        province: string;
+        region: string;
+    }[];
     regions: {
-      'region': string,
-    }[],
+        region: string;
+    }[];
     barangays: {
-      'barangay': string,
-      'id': number,
-      'city_municipality': string,
-    }[],
+        barangay: string;
+        id: number;
+        city_municipality: string;
+    }[];
     cities: {
-      'city_municipality': string,
-      'province': string,
-    }[],
+        city_municipality: string;
+        province: string;
+    }[];
     classifications: {
-      id: number,
-      name: string,
-      other: number,
-    }[],
-  }>() 
+        id: number;
+        name: string;
+        other: number;
+    }[];
+}>();
 
-  const form = useForm({
+const form = useForm({
     dialogueOpen: false,
     smsId: 0,
     smsinformation: '',
@@ -88,337 +87,240 @@
     selectedProvince: '',
     selectedCity: '',
     selectedBarangay: '',
-  })
+});
 
-  const addToSMS = (item: { message: string, received_at: string, id: number}) => {
-    form.dialogueOpen = true
-    form.smsinformation = item.message
-    form.receivedAt = item.received_at
-    form.smsId = item.id
-  }
+const addToSMS = (item: {
+    message: string;
+    received_at: string;
+    id: number;
+}) => {
+    form.dialogueOpen = true;
+    form.smsinformation = item.message;
+    form.receivedAt = item.received_at;
+    form.smsId = item.id;
+};
 
-  const submit = () => {
-    form.errors = {}
+const submit = () => {
+    form.errors = {};
     if (!form.classificationId) {
-      form.errors.classificationId = 'Classification is required.'
-      return
+        form.errors.classificationId = 'Classification is required.';
+        return;
     }
 
     if (!form.selectedBarangay) {
-      form.errors.selectedBarangay = 'Barangay is required.'
-      return
+        form.errors.selectedBarangay = 'Barangay is required.';
+        return;
     }
 
     form.post('/sms/fetch-message', {
-      onSuccess: () => {
-        form.reset()
-      },
-    })
-  }
+        onSuccess: () => {
+            form.reset();
+        },
+    });
+};
 
-  const breadcrumbs: BreadcrumbItem[] = [
+const breadcrumbs: BreadcrumbItem[] = [
     {
-      title: 'Messages',
-      href: '/sms',
+        title: 'Messages',
+        href: '/sms',
     },
-  ]
+];
 </script>
 
 <template>
-  <Head title="SMS Inbox" />
+    <Head title="SMS Inbox" />
 
-  <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="p-6">
-      <h1 class="text-2xl font-bold mb-4">Messages</h1>
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="p-6">
+            <h1 class="mb-4 text-2xl font-bold">Messages</h1>
 
-      <div class="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-[180px]">Sender</TableHead>
-              <TableHead>Message</TableHead>
-              <TableHead class="w-[180px]">Received At</TableHead>
-              <TableHead class="w-[180px]">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow
-              v-for="sms in messages"
-              :key="sms.id"
-            >
-              <TableCell class="font-medium">
-                {{ sms.sender }}
-              </TableCell>
+            <div class="overflow-hidden rounded-lg border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead class="w-[180px]">Sender</TableHead>
+                            <TableHead>Message</TableHead>
+                            <TableHead class="w-[180px]">Received At</TableHead>
+                            <TableHead class="w-[180px]">Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="sms in messages" :key="sms.id">
+                            <TableCell class="font-medium">
+                                {{ sms.sender }}
+                            </TableCell>
 
-              <TableCell class="max-w-xl truncate">
-                {{ sms.message }}
-              </TableCell>
+                            <TableCell class="max-w-xl truncate">
+                                {{ sms.message }}
+                            </TableCell>
 
-              <TableCell class="text-sm text-muted-foreground">
-                {{ sms.received_at }}
-              </TableCell>
+                            <TableCell class="text-sm text-muted-foreground">
+                                {{ sms.received_at }}
+                            </TableCell>
 
-              <TableCell class="text-sm text-muted-foreground">
-                <Button 
-                  class="cursor-pointer"
-                  size="sm"
-                  @click="addToSMS(sms)"
-                >
-                  Add
-                </Button>
-              </TableCell>
-            </TableRow>
-            <TableRow v-if="messages.length === 0">
-              <TableCell colspan="3" class="text-center py-6 text-muted-foreground">
-                No messages found
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-      <Dialog
-        v-model:open="form.dialogueOpen"
-      >
-          <DialogContent 
-              class="w-3/4 
-              max-h-[90vh]
-              overflow-scroll"
-          >
-            <DialogHeader>
-              <DialogTitle>Information Report</DialogTitle>
-            </DialogHeader>
-            
-            <div
-              class="grid gap-2 grid-cols-3"
-            >
-              <div class="col-span-1 md:col-span-1">
-                <p>SMS Information</p>
-                <p>Received At : {{ form.receivedAt }}</p>
-                <p>{{ form.smsinformation }}</p>
-              </div>
-              <div class="col-span-2 md:col-span-2">
-                <Input 
-                  v-model="form.file_number"
-                  label="File Number"
-                  class="mb-4"
-                  :required="true"
-                />
-                <Input 
-                  v-model="form.reference"
-                  label="Reference"
-                  class="mb-4"
-                  :required="true"
-                />
-                <Input 
-                  v-model="form.subject"
-                  label="Subject"
-                  class="mb-4"
-                  :required="true"
-                />
-                <Input 
-                  v-model="form.dateOfReport"
-                  label="Date of Report"
-                  :required="true"
-                  class="mb-4"
-                  type="date"
-                />
-                <Input 
-                  v-model="form.reporter"
-                  label="Reporter"
-                  class="mb-4"
-                />
-                <Input 
-                  v-model="form.designation"
-                  label="Designation"
-                  class="mb-4"
-                />
-                <Input 
-                  v-model="form.evaluation"
-                  label="Evaluation"
-                  class="mb-4"
-                />
-                <Input 
-                  v-model="form.source"
-                  label="Source"
-                  class="mb-4"
-                />
-                <Input 
-                  v-model="form.dateAcquired"
-                  label="Date Acquired"
-                  class="mb-4"
-                  type="date"
-                />
-                <Input 
-                  v-model="form.mannerAcquired"
-                  label="Manner Acquired"
-                  class="mb-4"
-                />
-                <Textarea 
-                  v-model="form.informationProper"
-                  label="Information Proper"
-                  class="mb-4"
-                  :required="true"
-                />
-                <Input 
-                  v-model="form.analysis"
-                  label="Analysis"
-                  class="mb-4"
-                />
-                <Input 
-                  v-model="form.actions"
-                  label="Actions"
-                  class="mb-4"
-                />
-                
-                <Select
-                  v-model="form.classificationId"
-                  :error="form.errors.classificationId"
-                >
-                  <label 
-                    class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Classification
-                  </label>
-                  <SelectTrigger class="w-full">
-                    <SelectValue placeholder="Select a classification" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Classification</SelectLabel>
-                      <template 
-                        v-for="classification in classifications"
-                        :key="classification.id"
-                      >
-                        <SelectItem :value="classification.id">
-                          {{ classification.name }}
-                        </SelectItem>
-                      </template>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                            <TableCell class="text-sm text-muted-foreground">
+                                <Button
+                                    class="cursor-pointer"
+                                    size="sm"
+                                    @click="addToSMS(sms)"
+                                >
+                                    Add
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="messages.length === 0">
+                            <TableCell
+                                colspan="3"
+                                class="py-6 text-center text-muted-foreground"
+                            >
+                                No messages found
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
+             <Dialog v-model:open="form.dialogueOpen">
+  <DialogContent class="max-w-5xl p-0 overflow-hidden max-h-[95vh] flex flex-col">
+    <DialogHeader class="px-6 py-4 border-b bg-muted/20">
+      <DialogTitle class="text-xl font-bold tracking-tight">Information Report</DialogTitle>
+      <DialogDescription>Review source data and categorize the intelligence report.</DialogDescription>
+    </DialogHeader>
 
-                <Select
-                  v-model="form.selectedRegion"
-                >
-                  <label 
-                    class="mb-2 mt-4 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Region
-                  </label>
-                  <SelectTrigger class="w-full">
-                    <SelectValue placeholder="Select a region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Region</SelectLabel>
-                      <template 
-                        v-for="region in regions"
-                        :key="region.region"
-                      >
-                        <SelectItem :value="region.region">
-                          {{ region.region }}
-                        </SelectItem>
-                      </template>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                
-                <Select
-                  v-model="form.selectedProvince"
-                >
-                  <label 
-                    class="mb-2 mt-4 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Province
-                  </label>
-                  <SelectTrigger class="w-full">
-                    <SelectValue placeholder="Select a province" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Province</SelectLabel>
-                      <template 
-                        v-for="province in provinces.filter(prov => prov.region === form.selectedRegion)"
-                        :key="province.province"
-                      >
-                        <SelectItem :value="province.province">
-                          {{ province.province }}
-                        </SelectItem>
-                      </template>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                
-                <Select
-                  v-model="form.selectedCity"
-                >
-                  <label 
-                    class="mb-2 mt-4 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    City/Municipality
-                  </label>
-                  <SelectTrigger class="w-full">
-                    <SelectValue placeholder="Select a city/municipality" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>City/Municipality</SelectLabel>
-                      <template 
-                        v-for="city in cities.filter(city => city.province === form.selectedProvince)"
-                        :key="city.city_municipality"
-                      >
-                        <SelectItem :value="city.city_municipality">
-                          {{ city.city_municipality }}
-                        </SelectItem>
-                      </template>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+    <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+      <aside class="w-full md:w-80 bg-muted/30 p-6 border-r overflow-y-auto space-y-6">
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">SMS Metadata</h3>
+          <div class="space-y-1">
+            <p class="text-xs text-muted-foreground">Received At</p>
+            <p class="text-sm font-medium">{{ form.receivedAt }}</p>
+          </div>
+        </div>
 
-                <Select
-                  v-model="form.selectedBarangay"
-                  :error="form.errors.selectedBarangay"
-                >
-                  <label 
-                    class="mb-2 mt-4 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Barangay
-                  </label>
-                  <SelectTrigger class="w-full">
-                    <SelectValue placeholder="Select a barangay" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Barangay</SelectLabel>
-                      <template 
-                        v-for="barangay in barangays.filter(bar => bar.city_municipality === form.selectedCity)"
-                        :key="barangay.barangay"
-                      >
-                        <SelectItem :value="barangay.id">
-                          {{ barangay.barangay }}
-                        </SelectItem>
-                      </template>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
+        <div class="p-4 rounded-xl bg-background border shadow-sm">
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Original Content</h3>
+          <p class="text-sm leading-relaxed text-foreground/90 italic">
+            "{{ form.smsinformation }}"
+          </p>
+        </div>
+      </aside>
+
+      <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div class="md:col-span-2 flex items-center gap-2">
+            <div class="h-px flex-1 bg-border"></div>
+            <span class="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">General Details</span>
+            <div class="h-px flex-1 bg-border"></div>
+          </div>
+
+          <Input v-model="form.file_number" label="File Number" placeholder="REQ-2024-001" :required="true" />
+          <Input v-model="form.reference" label="Reference" placeholder="Ref code..." :required="true" />
+          <Input v-model="form.subject" label="Subject" class="md:col-span-2" :required="true" />
+
+          <Input v-model="form.dateOfReport" label="Date of Report" type="date" :required="true" />
+          <Input v-model="form.reporter" label="Reporter" placeholder="Name of officer" />
+          <Input v-model="form.designation" label="Designation" placeholder="Rank/Position" />
+          <Input v-model="form.source" label="Source" placeholder="Intelligence Source" />
+          
+          <Input v-model="form.dateAcquired" label="Date Acquired" type="date" />
+          <Input v-model="form.mannerAcquired" label="Manner Acquired" placeholder="Method of collection" />
+
+          <div class="md:col-span-2 mt-4 flex items-center gap-2">
+            <div class="h-px flex-1 bg-border"></div>
+            <span class="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Classification & Status</span>
+            <div class="h-px flex-1 bg-border"></div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none">Classification</label>
+            <Select v-model="form.classificationId" :error="form.errors.classificationId">
+              <SelectTrigger>
+                <SelectValue placeholder="Select classification" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="item in classifications" :key="item.id" :value="item.id">
+                  {{ item.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Input v-model="form.evaluation" label="Evaluation" placeholder="Initial assessment score" />
+
+          <div class="md:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2 p-4 bg-muted/20 rounded-lg border border-dashed">
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase text-muted-foreground">Region</label>
+              <Select v-model="form.selectedRegion">
+                <SelectTrigger class="bg-background"><SelectValue placeholder="Region" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="r in regions" :key="r.region" :value="r.region">{{ r.region }}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button
-                @click="submit()"
-                type="submit"
-                class="cursor-pointer"
-                :class="form.processing ? 'disabled cursor-not-allowed' : ''"
-              >
-                Save
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-      </Dialog>
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase text-muted-foreground">Province</label>
+              <Select v-model="form.selectedProvince">
+                <SelectTrigger class="bg-background"><SelectValue placeholder="Province" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="p in provinces.filter(prov => prov.region === form.selectedRegion)" :key="p.province" :value="p.province">
+                    {{ p.province }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase text-muted-foreground">City</label>
+              <Select v-model="form.selectedCity">
+                <SelectTrigger class="bg-background"><SelectValue placeholder="City" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="c in cities.filter(city => city.province === form.selectedProvince)" :key="c.city_municipality" :value="c.city_municipality">
+                    {{ c.city_municipality }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase text-muted-foreground">Barangay</label>
+              <Select v-model="form.selectedBarangay" :error="form.errors.selectedBarangay">
+                <SelectTrigger class="bg-background"><SelectValue placeholder="Barangay" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="b in barangays.filter(bar => bar.city_municipality === form.selectedCity)" :key="b.id" :value="b.id">
+                    {{ b.barangay }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 space-y-4 mt-4">
+            <Textarea v-model="form.informationProper" label="Information Proper" placeholder="Enter detailed narrative..." :required="true" class="min-h-[120px]" />
+            <Input v-model="form.analysis" label="Analysis" placeholder="Analyst comments..." />
+            <Input v-model="form.actions" label="Actions" placeholder="Recommended next steps..." />
+          </div>
+        </div>
+      </main>
     </div>
-  </AppLayout>
+
+    <DialogFooter class="px-6 py-4 border-t bg-muted/20">
+      <DialogClose asChild>
+        <Button variant="ghost">Cancel</Button>
+      </DialogClose>
+      <Button 
+        @click="submit()" 
+        :disabled="form.processing"
+        class="px-8 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+      >
+        <span v-if="!form.processing">Save Report</span>
+        <span v-else class="flex items-center gap-2">
+          <Loader2 class="h-4 w-4 animate-spin" /> Saving...
+        </span>
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+        </div>
+    </AppLayout>
 </template>
