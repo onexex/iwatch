@@ -174,12 +174,15 @@
                             <p
                                 class="truncate text-[11px] font-semibold text-primary"
                             >
-                                {{ incident.barangay?.ADM4_EN }}
+                                 {{ incident.description }}
+                               
                             </p>
                             <p
                                 class="line-clamp-2 text-[10px] leading-tight text-muted-foreground"
                             >
-                                {{ incident.description }}
+                                
+
+                                 {{ incident.barangay?.province }}, {{ incident.barangay?.city_municipality }}, {{ incident.barangay?.barangay }}
                             </p>
                         </div>
                     </div>
@@ -327,10 +330,10 @@
                             >
                                 <label
                                     class="text-[10px] font-bold text-muted-foreground uppercase"
-                                    >Barangay</label
+                                    ><Address></Address></label
                                 >
                                 <p class="text-sm font-semibold text-red-600">
-                                    {{ selectedIncident.barangay?.ADM4_EN }}
+                                    {{ selectedIncident.barangay?.province }}, {{ selectedIncident.barangay?.city_municipality }}, {{ selectedIncident.barangay?.barangay }}
                                 </p>
                             </div>
 
@@ -654,7 +657,7 @@ export default defineComponent({
                 inc.id,
                 inc.created_at,
                 inc.type,
-                inc.barangay?.ADM4_EN,
+                inc.barangay?.barangay,
                 `"${inc.description}"`,
             ]);
             const csv = [headers, ...rows].map((e) => e.join(',')).join('\n');
