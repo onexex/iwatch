@@ -1,5 +1,5 @@
-
-<style>/* Custom Cluster Look */
+<style>
+/* Custom Cluster Look */
 .my-custom-cluster {
     background-color: rgba(59, 130, 246, 0.6); /* Blue with transparency */
     border-radius: 50%;
@@ -17,139 +17,287 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}</style>
+}
+
+/* Modern Leaflet Tooltip Styling */
+.leaflet-tooltip.modern-tooltip {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    padding: 8px 12px;
+}
+
+.leaflet-tooltip-top.modern-tooltip:before {
+    border-top-color: white;
+}
+
+/* Custom Cluster Look */
+.my-custom-cluster {
+    background-color: rgba(59, 130, 246, 0.6);
+    border-radius: 50%;
+}
+</style>
 <template>
     <Head title="Verified Incident Tracker" />
-    
+
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4 md:flex-row">
-            <div class="relative min-h-[500px] flex-1 overflow-hidden rounded-xl border bg-muted/50">
-                
+            <div
+                class="relative min-h-[500px] flex-1 overflow-hidden rounded-xl border bg-muted/50"
+            >
                 <div id="map" class="h-full w-full"></div>
 
-                <div v-if="!isHeatmapEnabled && categoryStats.length > 0" 
-                     class="absolute bottom-6 left-3 z-[1000] rounded-xl border bg-background/90 p-4 shadow-xl backdrop-blur-md min-w-[170px] pointer-events-auto">
-                    
-                    <h4 class="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Classification Filter</h4>
-                    
+                <div
+                    v-if="!isHeatmapEnabled && categoryStats.length > 0"
+                    class="pointer-events-auto absolute bottom-6 left-3 z-[1000] min-w-[170px] rounded-xl border bg-background/90 p-4 shadow-xl backdrop-blur-md"
+                >
+                    <h4
+                        class="mb-3 text-[10px] font-bold tracking-wider text-muted-foreground uppercase"
+                    >
+                        Classification Filter
+                    </h4>
+
                     <div class="space-y-2.5">
-                        <label v-for="cat in categoryStats" :key="cat.name" 
-                               class="flex items-center justify-between group cursor-pointer">
-                            
+                        <label
+                            v-for="cat in categoryStats"
+                            :key="cat.name"
+                            class="group flex cursor-pointer items-center justify-between"
+                        >
                             <div class="flex items-center gap-3">
-                                <input type="checkbox" 
-                                       :value="cat.name" 
-                                       v-model="activeCategories"
-                                       @change="updateMapVisualization"
-                                       class="peer hidden" />
-                                
-                                <div class="h-4 w-4 rounded border border-muted-foreground/30 flex items-center justify-center transition-all shadow-sm"
-                                     :class="activeCategories.includes(cat.name) ? cat.bgClass : 'bg-transparent'">
-                                    <svg v-if="activeCategories.includes(cat.name)" class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                <input
+                                    type="checkbox"
+                                    :value="cat.name"
+                                    v-model="activeCategories"
+                                    @change="updateMapVisualization"
+                                    class="peer hidden"
+                                />
+
+                                <div
+                                    class="flex h-4 w-4 items-center justify-center rounded border border-muted-foreground/30 shadow-sm transition-all"
+                                    :class="
+                                        activeCategories.includes(cat.name)
+                                            ? cat.bgClass
+                                            : 'bg-transparent'
+                                    "
+                                >
+                                    <svg
+                                        v-if="
+                                            activeCategories.includes(cat.name)
+                                        "
+                                        class="h-2.5 w-2.5 text-white"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M5 13l4 4L19 7"
+                                        />
                                     </svg>
                                 </div>
 
-                                <span class="text-[11px] font-bold text-foreground/80 group-hover:text-foreground transition-colors">
+                                <span
+                                    class="text-[11px] font-bold text-foreground/80 transition-colors group-hover:text-foreground"
+                                >
                                     {{ cat.name }}
                                 </span>
                             </div>
 
-                            <span class="text-[10px] font-mono font-bold bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                            <span
+                                class="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] font-bold text-muted-foreground"
+                            >
                                 {{ cat.count }}
                             </span>
                         </label>
                     </div>
 
-                    <div class="mt-4 pt-2 border-t border-border/50 flex justify-between">
-                        <button @click="selectAllCategories" class="text-[9px] font-black uppercase text-red-600 hover:underline">All</button>
-                        <button @click="clearCategories" class="text-[9px] font-black uppercase text-muted-foreground hover:underline">None</button>
+                    <div
+                        class="mt-4 flex justify-between border-t border-border/50 pt-2"
+                    >
+                        <button
+                            @click="selectAllCategories"
+                            class="text-[9px] font-black text-red-600 uppercase hover:underline"
+                        >
+                            All
+                        </button>
+                        <button
+                            @click="clearCategories"
+                            class="text-[9px] font-black text-muted-foreground uppercase hover:underline"
+                        >
+                            None
+                        </button>
                     </div>
                 </div>
 
-                <div v-if="showFullList" 
-                     class="absolute inset-y-0 right-0 z-[1001] w-80 border-l bg-background/95 p-4 shadow-xl backdrop-blur-md animate-in slide-in-from-right">
-                    <div class="flex items-center justify-between mb-2">
+                <div
+                    v-if="showFullList"
+                    class="absolute inset-y-0 right-0 z-[1001] w-80 animate-in border-l bg-background/95 p-4 shadow-xl backdrop-blur-md slide-in-from-right"
+                >
+                    <div class="mb-2 flex items-center justify-between">
                         <h3 class="text-sm font-bold">Search Incidents</h3>
-                        <button @click="showFullList = false" class="text-muted-foreground text-xs hover:text-foreground">✕</button>
+                        <button
+                            @click="showFullList = false"
+                            class="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                            ✕
+                        </button>
                     </div>
-                    <input 
+                    <input
                         v-model="searchQuery"
-                        type="text" 
+                        type="text"
                         placeholder="Search barangay, ID, keyword..."
                         class="mb-4 w-full rounded-md border border-input bg-background px-3 py-2 text-xs focus:ring-2 focus:ring-primary"
                     />
-                    <div class="space-y-2 overflow-y-auto h-[calc(100%-120px)] pr-2 custom-scrollbar">
-                        <div 
-                            v-for="incident in searchedIncidents" 
+                    <div
+                        class="custom-scrollbar h-[calc(100%-120px)] space-y-2 overflow-y-auto pr-2"
+                    >
+                        <div
+                            v-for="incident in searchedIncidents"
                             :key="incident.id"
                             @click="focusIncident(incident)"
-                            class="group cursor-pointer rounded-lg border p-2 hover:bg-accent transition-all"
+                            class="group cursor-pointer rounded-lg border p-2 transition-all hover:bg-accent"
                         >
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-[10px] font-mono font-bold">#{{ incident.id }}</span>
-                                <span :class="['h-2 w-2 rounded-full', getCategoryBg(incident.type)]"></span>
+                            <div class="mb-1 flex items-center justify-between">
+                                <span class="font-mono text-[10px] font-bold"
+                                    >#{{ incident.id }}</span
+                                >
+                                <span
+                                    :class="[
+                                        'h-2 w-2 rounded-full',
+                                        getCategoryBg(incident.type),
+                                    ]"
+                                ></span>
                             </div>
-                            <p class="text-[11px] font-semibold text-primary truncate">{{ incident.barangay?.ADM4_EN }}</p>
-                            <p class="text-[10px] text-muted-foreground line-clamp-2 leading-tight">{{ incident.description }}</p>
+                            <p
+                                class="truncate text-[11px] font-semibold text-primary"
+                            >
+                                {{ incident.barangay?.ADM4_EN }}
+                            </p>
+                            <p
+                                class="line-clamp-2 text-[10px] leading-tight text-muted-foreground"
+                            >
+                                {{ incident.description }}
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <button 
+                <button
                     @click="showFullList = !showFullList"
                     class="absolute top-4 right-4 z-[1000] flex items-center gap-2 rounded-md bg-white px-4 py-2 text-xs font-bold shadow-md hover:bg-gray-50 dark:bg-slate-900"
                 >
                     <span>📋 View List ({{ searchedIncidents.length }})</span>
                 </button>
 
-                <div class="absolute top-6 left-3 z-[1000] flex w-72 md:w-80 flex-col gap-4 pointer-events-auto">
-                    <div class="rounded-xl border bg-card/90 backdrop-blur-md shadow-xl ring-1 ring-black/5 overflow-hidden">
-                        <div 
-                            @click="isSidebarCollapsed = !isSidebarCollapsed" 
-                            class="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                <div
+                    class="pointer-events-auto absolute top-6 left-3 z-[1000] flex w-72 flex-col gap-4 md:w-80"
+                >
+                    <div
+                        class="overflow-hidden rounded-xl border bg-card/90 shadow-xl ring-1 ring-black/5 backdrop-blur-md"
+                    >
+                        <div
+                            @click="isSidebarCollapsed = !isSidebarCollapsed"
+                            class="flex cursor-pointer items-center justify-between p-4 transition-colors hover:bg-muted/30"
                         >
-                            <label class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground cursor-pointer">
+                            <label
+                                class="cursor-pointer text-[10px] font-bold tracking-wider text-muted-foreground uppercase"
+                            >
                                 Map Controls
                             </label>
-                            <button class="text-muted-foreground transition-transform duration-200" :class="{ 'rotate-180': isSidebarCollapsed }">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                            <button
+                                class="text-muted-foreground transition-transform duration-200"
+                                :class="{ 'rotate-180': isSidebarCollapsed }"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="m18 15-6-6-6 6" />
+                                </svg>
                             </button>
                         </div>
 
-                        <div v-show="!isSidebarCollapsed" class="p-4 pt-0 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <hr class="border-border/50 mb-4" />
-                            
-                            <label class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Visualization Mode</label>
-                            <div class="mt-2 mb-4 flex items-center justify-between rounded-lg border bg-muted/50 p-2">
-                                <span class="text-xs font-medium">Heatmap View</span>
-                                <button 
-                                    @click.stop="toggleHeatmap" 
-                                    :class="[isHeatmapEnabled ? 'bg-red-600' : 'bg-slate-300']"
+                        <div
+                            v-show="!isSidebarCollapsed"
+                            class="animate-in space-y-4 p-4 pt-0 duration-200 fade-in slide-in-from-top-2"
+                        >
+                            <hr class="mb-4 border-border/50" />
+
+                            <label
+                                class="text-[10px] font-bold tracking-wider text-muted-foreground uppercase"
+                                >Visualization Mode</label
+                            >
+                            <div
+                                class="mt-2 mb-4 flex items-center justify-between rounded-lg border bg-muted/50 p-2"
+                            >
+                                <span class="text-xs font-medium"
+                                    >Heatmap View</span
+                                >
+                                <button
+                                    @click.stop="toggleHeatmap"
+                                    :class="[
+                                        isHeatmapEnabled
+                                            ? 'bg-red-600'
+                                            : 'bg-slate-300',
+                                    ]"
                                     class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors outline-none"
                                 >
-                                    <span :class="[isHeatmapEnabled ? 'translate-x-5' : 'translate-x-1']" class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform" />
+                                    <span
+                                        :class="[
+                                            isHeatmapEnabled
+                                                ? 'translate-x-5'
+                                                : 'translate-x-1',
+                                        ]"
+                                        class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform"
+                                    />
                                 </button>
                             </div>
 
-                            <label class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Filters</label>
+                            <label
+                                class="text-[10px] font-bold tracking-wider text-muted-foreground uppercase"
+                                >Filters</label
+                            >
                             <div class="mt-2 space-y-2">
-                                <input type="date" v-model="filters.startDate" class="w-full rounded border bg-background px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary" />
-                                <input type="date" v-model="filters.endDate" class="w-full rounded border bg-background px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary" />
-                                
+                                <input
+                                    type="date"
+                                    v-model="filters.startDate"
+                                    class="w-full rounded border bg-background px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary"
+                                />
+                                <input
+                                    type="date"
+                                    v-model="filters.endDate"
+                                    class="w-full rounded border bg-background px-2 py-1.5 text-xs focus:ring-1 focus:ring-primary"
+                                />
+
                                 <div class="flex gap-2 pt-1">
-                                    <button @click="applyFilters" class="flex-1 rounded bg-primary py-1.5 text-[11px] font-bold text-primary-foreground hover:opacity-90">
+                                    <button
+                                        @click="applyFilters"
+                                        class="flex-1 rounded bg-primary py-1.5 text-[11px] font-bold text-primary-foreground hover:opacity-90"
+                                    >
                                         Apply
                                     </button>
-                                    <button @click="resetFilters" class="rounded border bg-background px-3 py-1.5 text-[11px] hover:bg-muted">
+                                    <button
+                                        @click="resetFilters"
+                                        class="rounded border bg-background px-3 py-1.5 text-[11px] hover:bg-muted"
+                                    >
                                         Reset
                                     </button>
                                 </div>
 
-                                <button 
+                                <button
                                     @click="exportToCSV"
                                     :disabled="searchedIncidents.length === 0"
-                                    class="w-full mt-2 flex items-center justify-center gap-2 rounded border border-green-600/30 bg-green-50/80 px-2 py-2 text-[11px] font-bold text-green-700 hover:bg-green-100 disabled:opacity-50"
+                                    class="mt-2 flex w-full items-center justify-center gap-2 rounded border border-green-600/30 bg-green-50/80 px-2 py-2 text-[11px] font-bold text-green-700 hover:bg-green-100 disabled:opacity-50"
                                 >
                                     📥 Export ({{ searchedIncidents.length }})
                                 </button>
@@ -157,30 +305,57 @@
                         </div>
                     </div>
 
-                    <div v-if="selectedIncident" 
-                        class="animate-in slide-in-from-left duration-300 rounded-xl border bg-card/95 backdrop-blur-md p-4 shadow-xl ring-2 ring-primary/10 max-h-[400px] overflow-y-auto pointer-events-auto">
-                        
-                        <div class="sticky top-0 bg-card/0 pb-2 mb-2 flex items-start justify-between border-b border-border/50">
+                    <div
+                        v-if="selectedIncident"
+                        class="pointer-events-auto max-h-[400px] animate-in overflow-y-auto rounded-xl border bg-card/95 p-4 shadow-xl ring-2 ring-primary/10 backdrop-blur-md duration-300 slide-in-from-left"
+                    >
+                        <div
+                            class="sticky top-0 mb-2 flex items-start justify-between border-b border-border/50 bg-card/0 pb-2"
+                        >
                             <h3 class="text-lg font-bold">Incident Details</h3>
-                            <button @click="selectedIncident = null" class="text-muted-foreground hover:text-foreground p-1 text-lg">✕</button>
+                            <button
+                                @click="selectedIncident = null"
+                                class="p-1 text-lg text-muted-foreground hover:text-foreground"
+                            >
+                                ✕
+                            </button>
                         </div>
-                        
+
                         <div class="space-y-4">
-                            <div class="rounded-lg bg-red-500/10 p-3 border border-red-500/20">
-                                <label class="text-[10px] font-bold uppercase text-muted-foreground">Barangay</label>
-                                <p class="text-sm font-semibold text-red-600">{{ selectedIncident.barangay?.ADM4_EN }}</p>
+                            <div
+                                class="rounded-lg border border-red-500/20 bg-red-500/10 p-3"
+                            >
+                                <label
+                                    class="text-[10px] font-bold text-muted-foreground uppercase"
+                                    >Barangay</label
+                                >
+                                <p class="text-sm font-semibold text-red-600">
+                                    {{ selectedIncident.barangay?.ADM4_EN }}
+                                </p>
                             </div>
-                            
+
                             <div>
-                                <label class="text-[10px] font-bold uppercase text-muted-foreground">Narrative</label>
-                                <p class="text-xs leading-relaxed text-foreground/80 mt-1 whitespace-pre-wrap">
+                                <label
+                                    class="text-[10px] font-bold text-muted-foreground uppercase"
+                                    >Narrative</label
+                                >
+                                <p
+                                    class="mt-1 text-xs leading-relaxed whitespace-pre-wrap text-foreground/80"
+                                >
                                     {{ selectedIncident.description }}
                                 </p>
                             </div>
-                            
-                            <div class="pt-2 border-t border-border/50">
-                                <p class="text-[10px] text-muted-foreground italic">
-                                    📅 Recorded: {{ new Date(selectedIncident.created_at).toLocaleString() }}
+
+                            <div class="border-t border-border/50 pt-2">
+                                <p
+                                    class="text-[10px] text-muted-foreground italic"
+                                >
+                                    📅 Recorded:
+                                    {{
+                                        new Date(
+                                            selectedIncident.created_at,
+                                        ).toLocaleString()
+                                    }}
                                 </p>
                             </div>
                         </div>
@@ -193,40 +368,43 @@
 
 <script lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
 import { type BreadcrumbItem } from '@/types';
-import { defineComponent, onMounted, ref, computed, watch } from 'vue';
- 
+import { Head } from '@inertiajs/vue3';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+
 import * as L from 'leaflet';
 import 'leaflet.heat';
 
-import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import 'leaflet.markercluster';
+import 'leaflet/dist/leaflet.css';
 
 interface BarangayProperties {
     ADM4_EN: string;
     latitude: number;
     longitude: number;
+    province: string;
+    city_municipality: string;
+    barangay: string;
 }
 
 interface Incident {
     id: number;
     sms_id: number;
     description: string;
-    type: string; 
-    created_at: string; 
-    barangay: BarangayProperties; 
+    type: string;
+    created_at: string;
+    barangay: BarangayProperties;
 }
-        
+
 export default defineComponent({
     name: 'MapView',
     components: { AppLayout, Head },
     data() {
         return {
             isSidebarCollapsed: false,
-        }
+        };
     },
     setup() {
         const breadcrumbs: BreadcrumbItem[] = [
@@ -240,7 +418,7 @@ export default defineComponent({
         const searchQuery = ref('');
         const isHeatmapEnabled = ref(false);
         const filters = ref({ startDate: '', endDate: '' });
-        
+
         // NEW: Checkbox state for classifications
         const activeCategories = ref<string[]>([]);
 
@@ -250,10 +428,21 @@ export default defineComponent({
 
         // Reactive Filtering Logic (Dates)
         const filteredIncidents = computed(() => {
-            if (!filters.value.startDate || !filters.value.endDate) return allIncidents.value;
-            const start = new Date(filters.value.startDate).setHours(0,0,0,0);
-            const end = new Date(filters.value.endDate).setHours(23,59,59,999);
-            return allIncidents.value.filter(inc => {
+            if (!filters.value.startDate || !filters.value.endDate)
+                return allIncidents.value;
+            const start = new Date(filters.value.startDate).setHours(
+                0,
+                0,
+                0,
+                0,
+            );
+            const end = new Date(filters.value.endDate).setHours(
+                23,
+                59,
+                59,
+                999,
+            );
+            return allIncidents.value.filter((inc) => {
                 const incDate = new Date(inc.created_at).getTime();
                 return incDate >= start && incDate <= end;
             });
@@ -262,14 +451,17 @@ export default defineComponent({
         // Combined Filtering (Dates + Search + Classification Checkboxes)
         const searchedIncidents = computed(() => {
             const query = searchQuery.value.toLowerCase().trim();
-            
-            return filteredIncidents.value.filter(inc => {
-                const matchesSearch = !query || 
-                    inc.description.toLowerCase().includes(query) || 
+
+            return filteredIncidents.value.filter((inc) => {
+                const matchesSearch =
+                    !query ||
+                    inc.description.toLowerCase().includes(query) ||
                     inc.barangay?.ADM4_EN?.toLowerCase().includes(query) ||
                     inc.id.toString().includes(query);
 
-                const matchesCategory = activeCategories.value.length === 0 || activeCategories.value.includes(inc.type);
+                const matchesCategory =
+                    activeCategories.value.length === 0 ||
+                    activeCategories.value.includes(inc.type);
 
                 return matchesSearch && matchesCategory;
             });
@@ -277,12 +469,17 @@ export default defineComponent({
 
         // Legend logic with counts
         const categoryStats = computed(() => {
-            const types = [...new Set(allIncidents.value.map(i => i.type))].filter(Boolean);
-            return types.map(type => ({
-                name: type,
-                count: allIncidents.value.filter(i => i.type === type).length,
-                bgClass: getCategoryBg(type)
-            })).sort((a, b) => b.count - a.count);
+            const types = [
+                ...new Set(allIncidents.value.map((i) => i.type)),
+            ].filter(Boolean);
+            return types
+                .map((type) => ({
+                    name: type,
+                    count: allIncidents.value.filter((i) => i.type === type)
+                        .length,
+                    bgClass: getCategoryBg(type),
+                }))
+                .sort((a, b) => b.count - a.count);
         });
 
         const getCategoryColor = (type: string) => {
@@ -303,6 +500,29 @@ export default defineComponent({
             return 'bg-green-600';
         };
 
+        // const renderMarkers = (data: Incident[]) => {
+        //     if (!markers) return;
+        //     markers.clearLayers();
+        //     data.forEach((incident) => {
+        //         if (incident.barangay?.latitude) {
+        //             const color = getCategoryColor(incident.type);
+        //             const customIcon = L.divIcon({
+        //                 className: 'custom-pin',
+        //                 html: `<div style="position: relative; display: flex; justify-content: center;">
+        //                             <div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
+        //                             <div style="position: absolute; top: 5px; width: 7px; height: 7px; background: white; border-radius: 50%; z-index: 10;"></div>
+        //                        </div>`,
+        //                 iconSize: [22, 22], iconAnchor: [11, 22]
+        //             });
+        //             const marker = L.marker([incident.barangay.latitude, incident.barangay.longitude], { icon: customIcon });
+        //             marker.on('click', () => {
+        //                 selectedIncident.value = incident;
+        //                 map.setView([incident.barangay.latitude, incident.barangay.longitude], 16);
+        //             });
+        //             markers.addLayer(marker);
+        //         }
+        //     });
+        // };
         const renderMarkers = (data: Incident[]) => {
             if (!markers) return;
             markers.clearLayers();
@@ -312,21 +532,62 @@ export default defineComponent({
                     const customIcon = L.divIcon({
                         className: 'custom-pin',
                         html: `<div style="position: relative; display: flex; justify-content: center;">
-                                    <div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
-                                    <div style="position: absolute; top: 5px; width: 7px; height: 7px; background: white; border-radius: 50%; z-index: 10;"></div>
-                               </div>`,
-                        iconSize: [22, 22], iconAnchor: [11, 22]
+                            <div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.4);"></div>
+                            <div style="position: absolute; top: 5px; width: 7px; height: 7px; background: white; border-radius: 50%; z-index: 10;"></div>
+                       </div>`,
+                        iconSize: [22, 22],
+                        iconAnchor: [11, 22],
                     });
-                    const marker = L.marker([incident.barangay.latitude, incident.barangay.longitude], { icon: customIcon });
+
+                    const marker = L.marker(
+                        [
+                            incident.barangay.latitude,
+                            incident.barangay.longitude,
+                        ],
+                        { icon: customIcon },
+                    );
+
+                    // --- ADDED HOVER TOOLTIP ---
+                    marker.bindTooltip(
+                        `
+                <div style="padding: 4px; font-family: sans-serif;">
+                    <div style="display: flex; items-center; gap: 6px; margin-bottom: 4px;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: ${color}; display: inline-block;"></span>
+                        <b style="font-size: 12px; color: #1e293b;">${incident.type.toUpperCase()}</b>
+                    </div>
+                    <div style="font-size: 11px; font-weight: 600; color: #ef4444; margin-bottom: 2px;">
+                      ${incident.description.substring(0, 60)}${incident.description.length > 60 ? '...' : ''}
+                     
+                    </div>
+                    <div style="font-size: 10px; color: #64748b; max-width: 180px; line-height: 1.3;">
+                          ${incident.barangay.province} ,${incident.barangay.city_municipality}, ${incident.barangay.barangay}
+                    </div>
+                </div>
+            `,
+                        {
+                            direction: 'top',
+                            offset: [0, -20],
+                            opacity: 0.95,
+                            className: 'modern-tooltip',
+                        },
+                    );
+                    // ---------------------------
+
                     marker.on('click', () => {
                         selectedIncident.value = incident;
-                        map.setView([incident.barangay.latitude, incident.barangay.longitude], 16);
+                        map.setView(
+                            [
+                                incident.barangay.latitude,
+                                incident.barangay.longitude,
+                            ],
+                            16,
+                        );
                     });
+
                     markers.addLayer(marker);
                 }
             });
         };
-
         const updateMapVisualization = () => {
             if (!map) return;
             if (markers) markers.clearLayers();
@@ -334,19 +595,24 @@ export default defineComponent({
 
             if (isHeatmapEnabled.value) {
                 const heatPoints = searchedIncidents.value
-                    .filter(inc => inc.barangay?.latitude && inc.barangay?.longitude)
-                    .map(inc => [
-                        Number(inc.barangay.latitude), 
-                        Number(inc.barangay.longitude), 
-                        0.7 
+                    .filter(
+                        (inc) =>
+                            inc.barangay?.latitude && inc.barangay?.longitude,
+                    )
+                    .map((inc) => [
+                        Number(inc.barangay.latitude),
+                        Number(inc.barangay.longitude),
+                        0.7,
                     ]);
 
                 if ((L as any).heatLayer) {
-                    heatLayer = (L as any).heatLayer(heatPoints, {
-                        radius: 25,
-                        blur: 15,
-                        maxZoom: 17
-                    }).addTo(map);
+                    heatLayer = (L as any)
+                        .heatLayer(heatPoints, {
+                            radius: 25,
+                            blur: 15,
+                            maxZoom: 17,
+                        })
+                        .addTo(map);
                 }
             } else {
                 renderMarkers(searchedIncidents.value);
@@ -365,12 +631,14 @@ export default defineComponent({
             filters.value.endDate = '';
             searchQuery.value = '';
             isHeatmapEnabled.value = false;
-            activeCategories.value = [...new Set(allIncidents.value.map(i => i.type))].filter(Boolean);
+            activeCategories.value = [
+                ...new Set(allIncidents.value.map((i) => i.type)),
+            ].filter(Boolean);
             updateMapVisualization();
         };
 
         const selectAllCategories = () => {
-            activeCategories.value = categoryStats.value.map(s => s.name);
+            activeCategories.value = categoryStats.value.map((s) => s.name);
             updateMapVisualization();
         };
 
@@ -381,11 +649,17 @@ export default defineComponent({
 
         const exportToCSV = () => {
             const data = searchedIncidents.value;
-            const headers = ["ID", "Date", "Type", "Barangay", "Description"];
-            const rows = data.map(inc => [inc.id, inc.created_at, inc.type, inc.barangay?.ADM4_EN, `"${inc.description}"`]);
-            const csv = [headers, ...rows].map(e => e.join(",")).join("\n");
+            const headers = ['ID', 'Date', 'Type', 'Barangay', 'Description'];
+            const rows = data.map((inc) => [
+                inc.id,
+                inc.created_at,
+                inc.type,
+                inc.barangay?.ADM4_EN,
+                `"${inc.description}"`,
+            ]);
+            const csv = [headers, ...rows].map((e) => e.join(',')).join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
-            const link = document.createElement("a");
+            const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = `incident_report_${new Date().getTime()}.csv`;
             link.click();
@@ -396,55 +670,78 @@ export default defineComponent({
             showFullList.value = false;
             isHeatmapEnabled.value = false;
             updateMapVisualization();
-            map.setView([incident.barangay.latitude, incident.barangay.longitude], 16);
+            map.setView(
+                [incident.barangay.latitude, incident.barangay.longitude],
+                16,
+            );
         };
 
         // Initialize checkboxes when data loads
-        watch(allIncidents, (newVal) => {
-            if (newVal.length > 0 && activeCategories.value.length === 0) {
-                activeCategories.value = [...new Set(newVal.map(i => i.type))].filter(Boolean);
-            }
-        }, { immediate: true });
+        watch(
+            allIncidents,
+            (newVal) => {
+                if (newVal.length > 0 && activeCategories.value.length === 0) {
+                    activeCategories.value = [
+                        ...new Set(newVal.map((i) => i.type)),
+                    ].filter(Boolean);
+                }
+            },
+            { immediate: true },
+        );
 
         onMounted(async () => {
-            map = L.map('map', { zoomControl: false }).setView([8.1541, 123.2588], 8);
-            
-            const googleStyle = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: '© Google'
-            });
-            const darkStyle = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
-            const voyagerStyle = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+            map = L.map('map', { zoomControl: false }).setView(
+                [8.1541, 123.2588],
+                8,
+            );
+
+            const googleStyle = L.tileLayer(
+                'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                {
+                    maxZoom: 20,
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    attribution: '© Google',
+                },
+            );
+            const darkStyle = L.tileLayer(
+                'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            );
+            const voyagerStyle = L.tileLayer(
+                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+            );
 
             // googleStyle.addTo(map);
             voyagerStyle.addTo(map);
 
             const baseMaps = {
-                "Standard": googleStyle,
-                "Night Mode": darkStyle,
-                "Voyager": voyagerStyle 
+                Standard: googleStyle,
+                'Night Mode': darkStyle,
+                Voyager: voyagerStyle,
             };
 
             // L.control.layers(baseMaps, {} , { position: 'bottomright' }).addTo(map);
             // markers = (L as any).markerClusterGroup();
             // map.addLayer(markers);
 
-            L.control.layers(baseMaps, {}, { position: 'bottomright' }).addTo(map);
+            L.control
+                .layers(baseMaps, {}, { position: 'bottomright' })
+                .addTo(map);
 
-// Initialize with a custom icon function
-markers = (L as any).markerClusterGroup({
-    iconCreateFunction: function(cluster: any) {
-        const count = cluster.getChildCount();
-        
-        // Return a custom DivIcon
-        return L.divIcon({
-            html: `<div><span>${count}</span></div>`,
-            className: 'my-custom-cluster', // Use our CSS class here
-            iconSize: L.point(40, 40)
-        });
-    }
-});
+            // Initialize with a custom icon function
+            markers = (L as any).markerClusterGroup({
+                iconCreateFunction: function (cluster: any) {
+                    const count = cluster.getChildCount();
 
-map.addLayer(markers);
+                    // Return a custom DivIcon
+                    return L.divIcon({
+                        html: `<div><span>${count}</span></div>`,
+                        className: 'my-custom-cluster', // Use our CSS class here
+                        iconSize: L.point(40, 40),
+                    });
+                },
+            });
+
+            map.addLayer(markers);
 
             // markers = L.layerGroup().addTo(map);
 
@@ -453,23 +750,42 @@ map.addLayer(markers);
                 allIncidents.value = await res.json();
                 updateMapVisualization();
             } catch (error) {
-                console.error("Failed to fetch incidents:", error);
+                console.error('Failed to fetch incidents:', error);
             }
         });
 
-        return { 
-            breadcrumbs, selectedIncident, allIncidents, searchedIncidents, filteredIncidents,
-            showFullList, focusIncident, getCategoryBg, filters, applyFilters, resetFilters,
-            exportToCSV, searchQuery, isHeatmapEnabled, toggleHeatmap, 
-            activeCategories, categoryStats, selectAllCategories, clearCategories, updateMapVisualization
+        return {
+            breadcrumbs,
+            selectedIncident,
+            allIncidents,
+            searchedIncidents,
+            filteredIncidents,
+            showFullList,
+            focusIncident,
+            getCategoryBg,
+            filters,
+            applyFilters,
+            resetFilters,
+            exportToCSV,
+            searchQuery,
+            isHeatmapEnabled,
+            toggleHeatmap,
+            activeCategories,
+            categoryStats,
+            selectAllCategories,
+            clearCategories,
+            updateMapVisualization,
         };
     },
 });
 </script>
 
 <style scoped>
-
-
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
 </style>
