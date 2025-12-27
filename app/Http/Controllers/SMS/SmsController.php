@@ -15,7 +15,9 @@ class SmsController extends Controller
 {
     public function index()
     {
-        $messages = SmsMessage::orderBy('created_at', 'desc')->get(); 
+        $messages = SmsMessage::orderBy('created_at', 'desc')
+            ->where('is_read', 0)
+            ->get(); 
         $region = Barangay::select('region')
             ->whereIn('region', ['Region X (Northern Mindanao)', 'Region IX (Zamboanga Peninsula)', 'Region XII (SOCCSKSARGEN)', 'Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)', 'Region XI (Davao Region)', 'Region XIII (Caraga)'])
             ->distinct()->get();
@@ -48,11 +50,14 @@ class SmsController extends Controller
 
     public function store(Request $request)
     {
+        $classification = Classification::where('id', $request->classificationId)
+            ->first();
+
         $incident = Incident::create([
             'sms_id' => $request->smsId,
             'address_id' => $request->selectedBarangay,
             'description' => '',
-            'type' => $request->classificationId,
+            'type' =>  $classification ? $classification->name : $request->classificationId,
             'classification_id' => $request->classificationId,
             'file_number' => $request->file_number,
             'reference' => $request->reference,
@@ -71,7 +76,7 @@ class SmsController extends Controller
         ]);
 
         SmsMessage::where('id', $request->smsId)
-            ->update(['is_read', 1]);
+            ->update(['is_read' => 1]);
 
         return redirect()->back();
     }

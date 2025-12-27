@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, InboxIcon } from 'lucide-vue-next'
+import { InboxIcon, PlusIcon } from 'lucide-vue-next';
 
 // shadcn/ui table components
 import Button from '@/components/ui/button/Button.vue';
@@ -133,79 +133,115 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="p-6">
             <h1 class="mb-4 text-2xl font-bold">Messages</h1>
 
-         <div class="flex flex-col gap-4">
-  <div class="rounded-xl border bg-card shadow-sm overflow-hidden">
-    <div class="relative h-[750px] overflow-auto">
-      <Table>
-        <TableHeader class="sticky top-0 z-10 bg-muted/90 backdrop-blur-md shadow-sm">
-          <TableRow>
-            <TableHead class="w-[220px] py-4 px-6 font-semibold">Sender</TableHead>
-            <TableHead class="font-semibold">Message</TableHead>
-            <TableHead class="w-[180px] font-semibold">Received At</TableHead>
-            <TableHead class="w-[180px] font-semibold">Status</TableHead>
-            <TableHead class="w-[100px] text-right px-6 font-semibold">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        
-        <TableBody>
-          <TableRow 
-            v-for="sms in messages" 
-            :key="sms.id"
-            class="group transition-colors hover:bg-muted/30 border-b last:border-0"
-          >
-            <TableCell class="py-4 px-6">
-              <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary ring-1 ring-primary/20">
-                  {{ sms.sender.substring(0, 2).toUpperCase() }}
+            <div class="flex flex-col gap-4">
+                <div
+                    class="overflow-hidden rounded-xl border bg-card shadow-sm"
+                >
+                    <div class="relative h-[750px] overflow-auto">
+                        <Table>
+                            <TableHeader
+                                class="sticky top-0 z-10 bg-muted/90 shadow-sm backdrop-blur-md"
+                            >
+                                <TableRow>
+                                    <TableHead
+                                        class="w-[220px] px-6 py-4 font-semibold"
+                                        >Sender</TableHead
+                                    >
+                                    <TableHead class="font-semibold"
+                                        >Message</TableHead
+                                    >
+                                    <TableHead class="w-[180px] font-semibold"
+                                        >Received At</TableHead
+                                    >
+                                    <TableHead class="w-[180px] font-semibold"
+                                        >Status</TableHead
+                                    >
+                                    <TableHead
+                                        class="w-[100px] px-6 text-right font-semibold"
+                                        >Action</TableHead
+                                    >
+                                </TableRow>
+                            </TableHeader>
+
+                            <TableBody>
+                                <TableRow
+                                    v-for="sms in messages"
+                                    :key="sms.id"
+                                    class="group border-b transition-colors last:border-0 hover:bg-muted/30"
+                                >
+                                    <TableCell class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary ring-1 ring-primary/20"
+                                            >
+                                                {{
+                                                    sms.sender
+                                                        .substring(0, 2)
+                                                        .toUpperCase()
+                                                }}
+                                            </div>
+                                            <span
+                                                class="truncate font-semibold tracking-tight text-foreground"
+                                            >
+                                                {{ sms.sender }}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+
+                                    <TableCell class="max-w-md lg:max-w-xl">
+                                        <p
+                                            class="line-clamp-2 text-sm text-muted-foreground transition-colors group-hover:text-foreground"
+                                        >
+                                            {{ sms.message }}
+                                        </p>
+                                    </TableCell>
+
+                                    <TableCell
+                                        class="text-sm font-medium whitespace-nowrap"
+                                    >
+                                        {{ sms.received_at }}
+                                    </TableCell>
+
+                                    <TableCell
+                                        class="text-sm font-medium whitespace-nowrap"
+                                    >
+                                    </TableCell>
+
+                                    <TableCell class="px-6 text-right">
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            class="h-8 gap-2 px-3 transition-all hover:bg-primary hover:text-primary-foreground"
+                                            @click="addToSMS(sms)"
+                                        >
+                                            <PlusIcon class="h-3.5 w-3.5" />
+                                            <span>Evaluate</span>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+
+                                <TableRow v-if="messages.length === 0">
+                                    <TableCell
+                                        colspan="4"
+                                        class="h-[400px] text-center"
+                                    >
+                                        <div
+                                            class="flex flex-col items-center justify-center gap-2 text-muted-foreground"
+                                        >
+                                            <InboxIcon
+                                                class="h-10 w-10 opacity-20"
+                                            />
+                                            <p class="text-sm font-medium">
+                                                No messages found
+                                            </p>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
                 </div>
-                <span class="font-semibold text-foreground tracking-tight truncate">
-                  {{ sms.sender }}
-                </span>
-              </div>
-            </TableCell>
-
-            <TableCell class="max-w-md lg:max-w-xl">
-              <p class="text-sm text-muted-foreground group-hover:text-foreground transition-colors line-clamp-2">
-                {{ sms.message }}
-              </p>
-            </TableCell>
-
-            <TableCell class="text-sm font-medium whitespace-nowrap">
-              {{ sms.received_at }}
-            </TableCell>
-
-             <TableCell class="text-sm font-medium whitespace-nowrap">
-              
-            </TableCell>
-
-            <TableCell class="text-right px-6">
-              <Button
-                variant="secondary"
-                size="sm"
-                class="h-8 gap-2 px-3 transition-all hover:bg-primary hover:text-primary-foreground"
-                @click="addToSMS(sms)"
-              >
-                <PlusIcon class="h-3.5 w-3.5" />
-                <span>Evaluate</span>
-              </Button>
-            </TableCell>
-          </TableRow>
-
-          <TableRow v-if="messages.length === 0">
-            <TableCell colspan="4" class="h-[400px] text-center">
-              <div class="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                <InboxIcon class="h-10 w-10 opacity-20" />
-                <p class="text-sm font-medium">No messages found</p>
-              </div>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </div>
-  </div>
-
-   
-</div>
+            </div>
             <Dialog v-model:open="form.dialogueOpen">
                 <DialogContent
                     class="flex max-h-[95vh] max-w-5xl flex-col overflow-hidden p-0"
