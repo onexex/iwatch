@@ -56,7 +56,7 @@ class SmsController extends Controller
         $incident = Incident::create([
             'sms_id' => $request->smsId,
             'address_id' => $request->selectedBarangay,
-            'description' => '',
+            'description' => $request->subject,
             'type' =>  $classification ? $classification->name : $request->classificationId,
             'classification_id' => $request->classificationId,
             'file_number' => $request->file_number,
