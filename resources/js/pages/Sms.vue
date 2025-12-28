@@ -38,6 +38,7 @@ defineProps<{
         sender: string;
         message: string;
         received_at: string;
+        is_read: number;
     }[];
     provinces: {
         province: string;
@@ -134,10 +135,8 @@ const breadcrumbs: BreadcrumbItem[] = [
             <h1 class="mb-4 text-2xl font-bold">Messages</h1>
 
             <div class="flex flex-col gap-4">
-                <div
-                    class="overflow-hidden rounded-xl border bg-card shadow-sm"
-                >
-                    <div class="relative h-[750px] overflow-auto">
+                <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
+                    <div class="relative h-[650px] overflow-auto">
                         <Table>
                             <TableHeader
                                 class="sticky top-0 z-10 bg-muted/90 shadow-sm backdrop-blur-md"
@@ -202,10 +201,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         {{ sms.received_at }}
                                     </TableCell>
 
-                                    <TableCell
-                                        class="text-sm font-medium whitespace-nowrap"
+                                <TableCell class="text-sm font-medium whitespace-nowrap">
+                                    <span 
+                                        :class="[
+                                            'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
+                                            sms.is_read != 0 
+                                                ? 'bg-green-50 text-green-700 border-green-200' 
+                                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                        ]"
                                     >
-                                    </TableCell>
+                                        {{ sms.is_read != 0 ? 'Processed' : 'Unprocessed' }}
+                                    </span>
+                                </TableCell>
 
                                     <TableCell class="px-6 text-right">
                                         <Button
@@ -242,6 +249,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </div>
                 </div>
             </div>
+            
             <Dialog v-model:open="form.dialogueOpen">
                 <DialogContent
                     class="flex max-h-[95vh] max-w-5xl flex-col overflow-hidden p-0"

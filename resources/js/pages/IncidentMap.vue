@@ -459,7 +459,9 @@ export default defineComponent({
                 const matchesSearch =
                     !query ||
                     inc.description.toLowerCase().includes(query) ||
-                    inc.barangay?.ADM4_EN?.toLowerCase().includes(query) ||
+                    inc.barangay?.barangay?.toLowerCase().includes(query) ||
+                    inc.barangay?.city_municipality?.toLowerCase().includes(query) ||
+                    inc.barangay?.province?.toLowerCase().includes(query) ||
                     inc.id.toString().includes(query);
 
                 const matchesCategory =
@@ -583,7 +585,7 @@ export default defineComponent({
                                 incident.barangay.latitude,
                                 incident.barangay.longitude,
                             ],
-                            16,
+                            13,
                         );
                     });
 
