@@ -39,6 +39,7 @@ defineProps<{
         message: string;
         received_at: string;
         is_read: number;
+        processed_by: string | null;
     }[];
     provinces: {
         province: string;
@@ -205,12 +206,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <span 
                                         :class="[
                                             'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
-                                            sms.is_read != 0 
+                                            sms.processed_by != null
                                                 ? 'bg-green-50 text-green-700 border-green-200' 
                                                 : 'bg-amber-50 text-amber-700 border-amber-200'
                                         ]"
                                     >
-                                        {{ sms.is_read != 0 ? 'Processed' : 'Unprocessed' }}
+                                        {{ sms.processed_by != null ? 'Processed' : 'Unprocessed' }}
                                     </span>
                                 </TableCell>
 
@@ -249,7 +250,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </div>
                 </div>
             </div>
-            
+
             <Dialog v-model:open="form.dialogueOpen">
                 <DialogContent
                     class="flex max-h-[95vh] max-w-5xl flex-col overflow-hidden p-0"

@@ -26,7 +26,7 @@ class IncidentController extends Controller
     {
         $incidents = Incident::orderBy('created_at', 'desc')
             ->with('barangay', 'classification', 'classification')
-            // ->paginate(10)
+            ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('Messages/ProcessedMessage', [

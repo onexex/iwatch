@@ -330,7 +330,7 @@
                             >
                                 <label
                                     class="text-[10px] font-bold text-muted-foreground uppercase"
-                                    ><Address></Address></label
+                                    >Location</label
                                 >
                                 <p class="text-sm font-semibold text-red-600">
                                     {{ selectedIncident.barangay?.province }}, {{ selectedIncident.barangay?.city_municipality }}, {{ selectedIncident.barangay?.barangay }}
@@ -374,6 +374,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
+
 
 import * as L from 'leaflet';
 import 'leaflet.heat';
@@ -695,10 +696,15 @@ export default defineComponent({
         );
 
         onMounted(async () => {
-            map = L.map('map', { zoomControl: false }).setView(
-                [8.1541, 123.2588],
-                8,
-            );
+            // map = L.map('map', { zoomControl: false }).setView(
+            //     [8.1541, 123.2588],
+            //     8,
+            // );
+            map = L.map('map', { 
+                zoomControl: false,
+                preferCanvas: true, // <--- Add this line
+                attributionControl: false,
+            }).setView([8.1541, 123.2588], 8)
 
             const googleStyle = L.tileLayer(
                 'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
@@ -715,6 +721,8 @@ export default defineComponent({
                 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
             );
 
+            const blankStyle = L.layerGroup();
+
             // googleStyle.addTo(map);
             voyagerStyle.addTo(map);
 
@@ -722,6 +730,7 @@ export default defineComponent({
                 Standard: googleStyle,
                 'Night Mode': darkStyle,
                 Voyager: voyagerStyle,
+                'Blank': blankStyle, // No labels, no tiles
             };
 
             // L.control.layers(baseMaps, {} , { position: 'bottomright' }).addTo(map);
@@ -748,7 +757,7 @@ export default defineComponent({
 
             map.addLayer(markers);
 
-            // markers = L.layerGroup().addTo(map);
+            // markers = L.layerGroup().addTo(map);s
 
             try {
                 const res = await fetch('/mapping_incidents');
@@ -757,6 +766,83 @@ export default defineComponent({
             } catch (error) {
                 console.error('Failed to fetch incidents:', error);
             }
+
+            //enable below to handle the geojson loading (shape file)
+            // try {
+            //     const res = await fetch('/mapping_incidents');
+            //     allIncidents.value = await res.json();
+            //     updateMapVisualization();
+
+            //     // 2. NEW: Fetch and Load GeoJSON
+            //     const geoRes = await fetch('/geojson/shape.json'); // Replace with your actual filename
+            //     const geoData = await geoRes.json();
+
+            //     // L.geoJSON(geoData, {
+            //     //     style: {
+            //     //         color: '#3388ff', // Border color
+            //     //         weight: 0.2,        // Border thickness
+            //     //         fillOpacity: 0.1  // Area transparency
+            //     //     },
+            //     //    onEachFeature: (feature, layer) => {
+            //     //         const props = feature.properties;
+                        
+            //     //         // Check the console to see the real keys
+            //     //         console.log("Available properties:", props);
+
+            //     //         // Try all common GIS naming conventions
+            //     //         const areaName = props.name || 
+            //     //                         props.ADM4_EN ||
+            //     //                         "Data not found";
+
+            //     //         layer.bindPopup(`<strong>${areaName}</strong>`);
+            //     //     }
+            //     // }).addTo(map);
+
+            //     // 1.This code use chunk so it will not crash the browser when rendering many shapes
+
+            //     // const features = geoData.features;
+            //     // const chunkSize = 200; // Adjust this: smaller = smoother, larger = faster
+            //     // let index = 0;
+
+            //     // // Create a LayerGroup to hold all chunks
+            //     // const shapeLayer = L.layerGroup().addTo(map);
+
+            //     // function renderNextChunk() {
+            //     //     // Get the next slice of features
+            //     //     const chunk = features.slice(index, index + chunkSize);
+                    
+            //     //     // Create a GeoJSON layer for this specific chunk
+            //     //     L.geoJSON(chunk, {
+            //     //         style: {
+            //     //             color: '#3388ff',
+            //     //             weight: 0.2,
+            //     //             fillOpacity: 0.1
+            //     //         },
+            //     //         onEachFeature: (feature, layer) => {
+            //     //             const props = feature.properties;
+            //     //             const areaName = props.name || props.ADM4_EN || "Data not found";
+            //     //             layer.bindPopup(`<strong>${areaName}</strong>`);
+            //     //         }
+            //     //     }).addTo(shapeLayer);
+
+            //     //     index += chunkSize;
+
+            //     //     // If there are more features, schedule the next batch
+            //     //     if (index < features.length) {
+            //     //         // requestAnimationFrame is better than setTimeout for smooth map performance
+            //     //         requestAnimationFrame(renderNextChunk); 
+            //     //     } else {
+            //     //         console.log("All shapes rendered successfully.");
+            //     //         // shapeLayer.bringToBack(); // Ensure they stay behind your incident markers
+            //     //     }
+            //     // }
+
+            //     // // Start the chunked rendering
+            //     // renderNextChunk();
+
+            // } catch (error) {
+            //     console.error('Failed to fetch data:', error);
+            // }
         });
 
         return {
