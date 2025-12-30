@@ -38,6 +38,11 @@ class SmsController extends Controller
         
         $classifications = Classification::all();
 
+        $year = date('Y');
+        $incident = Incident::whereYear('created_at', $year)->count();
+        $num = str_pad($incident, 3, '0', STR_PAD_LEFT);
+        $filenumber = 'WMSO-' . $year . '-' . $num; 
+
         return Inertia::render('Messages/Sms', [
             'messages' => $messages,
             'regions' => $region,
@@ -45,6 +50,7 @@ class SmsController extends Controller
             'cities' => $municipality,
             'barangays' => $barangay,
             'classifications' => $classifications,
+            'filenumber' => $filenumber,
         ]);
     }
 

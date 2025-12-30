@@ -63,8 +63,10 @@ const props=defineProps<{
     classifications: {
         id: number;
         name: string;
+        description: string;
         other: number;
     }[];
+    filenumber: string,
 }>();
 
 const form = useForm({
@@ -72,7 +74,7 @@ const form = useForm({
     smsId: 0,
     smsinformation: '',
     receivedAt: '',
-    file_number: '',
+    file_number: props.filenumber,
     reference: '',
     subject: '',
     dateOfReport: '',
@@ -325,7 +327,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <Dialog v-model:open="form.dialogueOpen">
                 <DialogContent
-                    class="flex max-h-[95vh] max-w-7xl  flex-col overflow-hidden p-0"
+                    class="flex max-h-[95vh] max-w-3/4  flex-col overflow-hidden p-0"
                 >
                     <DialogHeader class="border-b bg-muted/20 px-6 py-4">
                         <DialogTitle class="text-xl font-bold tracking-tight"
@@ -459,8 +461,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Select
                                         v-model="form.classificationId"
                                         :error="form.errors.classificationId"
+                                        class="w-full"
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger
+                                                class="w-full"
+                                        >
                                             <SelectValue
                                                 placeholder="Select classification"
                                             />
@@ -470,8 +475,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 v-for="item in classifications"
                                                 :key="item.id"
                                                 :value="item.id"
+                                                class="w-full"
                                             >
-                                                {{ item.name }}
+                                                {{ item.description }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
