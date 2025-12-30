@@ -3,6 +3,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { InboxIcon, PlusIcon } from 'lucide-vue-next';
+import { Loader2 } from 'lucide-vue-next';
+
 
 // shadcn/ui table components
 import Button from '@/components/ui/button/Button.vue';
@@ -31,8 +33,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { reactive, computed } from 'vue';
 
-defineProps<{
+const props=defineProps<{
     messages: {
         id: number;
         sender: string;
@@ -120,6 +123,36 @@ const submit = () => {
     });
 };
 
+const filters = reactive({
+    date_from: '',
+    date_to: '',
+    status: 'Unprocess' // Default matches your dropdown
+});
+
+// 2. Create the filtered computed property
+const filteredMessages = computed(() => {
+    return props.messages.filter((messages) => {
+        // --- Status Filter Logic ---
+        const isProcessed = messages.processed_by !== null;
+        let statusMatch = false;
+
+        if (filters.status === 'Processed') statusMatch = isProcessed;
+        else if (filters.status === 'Unprocess') statusMatch = !isProcessed;
+        else if (filters.status === 'Archive') statusMatch = true; // Show all or adjust based on your 'Archive' definition
+
+        // --- Date Filter Logic ---
+        // Assuming received_at is a string like "2023-10-25 14:30:00"
+        const receivedDate = new Date(messages.received_at).setHours(0,0,0,0);
+        const fromDate = filters.date_from ? new Date(filters.date_from).setHours(0,0,0,0) : null;
+        const toDate = filters.date_to ? new Date(filters.date_to).setHours(0,0,0,0) : null;
+
+        const dateFromMatch = fromDate ? receivedDate >= fromDate : true;
+        const dateToMatch = toDate ? receivedDate <= toDate : true;
+
+        return statusMatch && dateFromMatch && dateToMatch;
+    });
+});
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Messages',
@@ -134,6 +167,53 @@ const breadcrumbs: BreadcrumbItem[] = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
             <h1 class="mb-4 text-2xl font-bold">Messages</h1>
+
+            <div class="flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-4 px-1">
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-muted-foreground uppercase">Filter:</span>
+            <select 
+                v-model="filters.status"
+                class="h-9 w-32 rounded-md border border-input bg-background px-2 py-1 text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+            >
+                <option value="Unprocess">Unprocessed</option>
+                <option value="Processed">Processed</option>
+                <option value="Archive">Archive</option>
+            </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-muted-foreground uppercase">From:</span>
+            <input 
+                type="date" 
+                v-model="filters.date_from"
+                class="h-9 rounded-md border border-input bg-background px-2 py-1 text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+            />
+        </div>
+
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-muted-foreground uppercase">To:</span>
+            <input 
+                type="date" 
+                v-model="filters.date_to"
+                class="h-9 rounded-md border border-input bg-background px-2 py-1 text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+            />
+        </div>
+
+        <Button 
+            v-if="filters.date_from || filters.date_to || filters.status !== 'Unprocess'"
+            variant="ghost" 
+            size="sm" 
+            class="h-8 text-xs underline"
+            @click="Object.assign(filters, { date_from: '', date_to: '', status: 'Unprocess' })"
+        >
+            Clear Filters
+        </Button>
+    </div>
+
+    <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
+        </div>
+</div>
 
             <div class="flex flex-col gap-4">
                 <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -164,11 +244,16 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableHeader>
 
                             <TableBody>
-                                <TableRow
+                                <!-- <TableRow
                                     v-for="sms in messages"
                                     :key="sms.id"
                                     class="group border-b transition-colors last:border-0 hover:bg-muted/30"
-                                >
+                                > -->
+                                <TableRow
+                                        v-for="sms in filteredMessages"
+                                        :key="sms.id"
+                                        class="group border-b transition-colors last:border-0 hover:bg-muted/30"
+                                    >
                                     <TableCell class="px-6 py-4">
                                         <div class="flex items-center gap-3">
                                             <div
@@ -228,22 +313,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     </TableCell>
                                 </TableRow>
 
-                                <TableRow v-if="messages.length === 0">
-                                    <TableCell
-                                        colspan="4"
-                                        class="h-[400px] text-center"
-                                    >
-                                        <div
-                                            class="flex flex-col items-center justify-center gap-2 text-muted-foreground"
-                                        >
-                                            <InboxIcon
-                                                class="h-10 w-10 opacity-20"
-                                            />
-                                            <p class="text-sm font-medium">
-                                                No messages found
-                                            </p>
-                                        </div>
-                                    </TableCell>
+                                    <TableRow v-if="filteredMessages.length === 0">
+                                    <TableCell colspan="5" class="h-[400px] text-center">
+                                        </TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
@@ -253,15 +325,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <Dialog v-model:open="form.dialogueOpen">
                 <DialogContent
-                    class="flex max-h-[95vh] max-w-5xl flex-col overflow-hidden p-0"
+                    class="flex max-h-[95vh] max-w-7xl  flex-col overflow-hidden p-0"
                 >
                     <DialogHeader class="border-b bg-muted/20 px-6 py-4">
                         <DialogTitle class="text-xl font-bold tracking-tight"
                             >Information Report</DialogTitle
                         >
-                        <DialogDescription
+                        <label class="text-sm text-muted-foreground"
                             >Review source data and categorize the intelligence
-                            report.</DialogDescription
+                            report.</label
                         >
                     </DialogHeader>
 

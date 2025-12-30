@@ -38,7 +38,7 @@ class SmsController extends Controller
         
         $classifications = Classification::all();
 
-        return Inertia::render('Sms', [
+        return Inertia::render('Messages/Sms', [
             'messages' => $messages,
             'regions' => $region,
             'provinces' => $province,
