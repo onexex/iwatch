@@ -41,7 +41,7 @@ class SmsController extends Controller
 
         $year = date('Y');
         $incident = Incident::whereYear('created_at', $year)->count();
-        $num = str_pad($incident, 3, '0', STR_PAD_LEFT);
+        $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
         $filenumber = 'WMSO-' . $year . '-' . $num; 
 
         return Inertia::render('Messages/Sms', [
@@ -106,5 +106,20 @@ class SmsController extends Controller
             ->update(['is_read' => 1,'processed_by' => Auth::user()->id]);
 
         return redirect()->back();
+    }
+
+    public function getReference(Request $request)
+    {
+        $year = date('Y');
+        $classification = Classification::where('id', $request->classification_id)
+            ->first();
+
+        $incident = Incident::whereYear('created_at', $year)
+            ->where('classification_id', $request->classification_id)
+            ->count();
+        $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
+        $ref = $classification?->name . '-' . $year . '-' . $num; 
+
+        return response()->json($ref);
     }
 }

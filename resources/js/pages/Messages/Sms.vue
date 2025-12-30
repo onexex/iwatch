@@ -4,7 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { PlusIcon } from 'lucide-vue-next';
 import { Loader2 } from 'lucide-vue-next';
-
+import type { AcceptableValue } from 'reka-ui'
 
 // shadcn/ui table components
 import Button from '@/components/ui/button/Button.vue';
@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { reactive, computed, ref, onBeforeUnmount } from 'vue';
+import axios from 'axios';
 
 const props=defineProps<{
     messages: {
@@ -182,12 +183,23 @@ const filteredMessages = computed(() => {
         previews.value.forEach(url => URL.revokeObjectURL(url))
     })
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Messages',
-        href: '/sms',
-    },
-];
+    async function changedClassification(value: AcceptableValue) {
+        const response = await axios.get('/processed-sms-get-reference', {
+            params: {
+                classification_id: value,
+            }
+        })
+        if (response.data) {
+            form.reference = response.data
+        }
+    }
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Messages',
+            href: '/sms',
+        },
+    ];
 </script>
 
 <template>
@@ -488,10 +500,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Select
                                         v-model="form.classificationId"
                                         :error="form.errors.classificationId"
+                                        @update:modelValue="changedClassification"
                                         class="w-full"
                                     >
                                         <SelectTrigger
-                                                class="w-full"
+                                            class="w-full"
                                         >
                                             <SelectValue
                                                 placeholder="Select classification"

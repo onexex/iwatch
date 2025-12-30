@@ -32,6 +32,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::get('/processed-messages', [IncidentController::class, 'processedMessages'])->name('processed-messages.index');
 
     Route::resource('classifications', ClassificationController::class);
+    Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');
 });
 
 require __DIR__.'/settings.php';
