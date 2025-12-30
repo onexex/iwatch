@@ -22,6 +22,7 @@
                     <TableHead class="w-[180px]">Analysis</TableHead>
                     <TableHead class="w-[180px]">Actions</TableHead>
                     <TableHead class="w-[180px]">Address</TableHead>
+                    <TableHead class="w-[180px]">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -74,6 +75,16 @@
                         <TableCell class="font-medium">
                             {{ sms.barangay.barangay }} , {{ sms.barangay.city_municipality }} , {{ sms.barangay.province }}
                         </TableCell>
+                        <TableCell>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                @click="funcOpenDialog(sms.attachments)"
+                            >
+                                <EyeIcon className="w-4 h-4 mr-1" />
+                                View Attachment
+                            </Button>
+                        </TableCell>
                     </TableRow>
                     <TableRow v-if="messages.data.length === 0">
                         <TableCell colspan="3" class="text-center py-6 text-muted-foreground">
@@ -110,6 +121,40 @@
                     <PaginationNext @click="changePage(page + 1)" />
                 </PaginationContent>
             </Pagination>
+            <Dialog v-model:open="openDialog">
+                <DialogContent class="max-w-3xl">
+                    <DialogHeader>
+                        <DialogTitle>Attachments</DialogTitle>
+                    </DialogHeader>
+
+                    <div v-if="incidentattachments.length === 0" class="text-muted-foreground">
+                        No attachments
+                    </div>
+
+                    <div
+                        v-else
+                        class="grid grid-cols-2 md:grid-cols-3 gap-4"
+                    >
+                        <div
+                            v-for="file in incidentattachments"
+                            :key="file.id"
+                            class="border rounded p-2"
+                        >
+                            <img
+                                :src="`/storage/${file.url}`"
+                                class="w-full h-32 object-cover rounded"
+                            />
+                            <a
+                                :href="`/storage/${file.url}`"
+                                target="_blank"
+                                class="block mt-2 text-sm text-primary hover:underline text-center"
+                            >
+                                Open
+                            </a>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     </AppLayout>
 </template>
@@ -117,6 +162,7 @@
     import AppLayout from '@/layouts/AppLayout.vue'
     import { Head, router } from '@inertiajs/vue3'
     import { type BreadcrumbItem } from '@/types'
+    import { Button } from "@/components/ui/button"
 
     import {
         Table,
@@ -136,11 +182,24 @@
         PaginationNext,
         PaginationEllipsis,
     } from '@/components/ui/pagination'
+    import {
+        Dialog,
+        DialogContent,
+        DialogHeader,
+        DialogTitle,
+    } from "@/components/ui/dialog"
+    import { EyeIcon } from 'lucide-vue-next'
+    import { ref } from 'vue'
+
+    interface IncidentAttachment {
+        id: number
+        url: string
+    }    
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-        title: 'Processed Messages',
-        href: '/processed-messages',
+            title: 'Processed Messages',
+            href: '/processed-messages',
         },
     ]
 
@@ -151,11 +210,19 @@
         },
     })
 
+    const openDialog = ref(false)
+    const incidentattachments = ref<IncidentAttachment[]>([])
+
     function changePage(page: number) {
         router.get(
             `/processed-messages?page=${page}`,
             {},
             { preserveScroll: true }
         )
+    }
+
+    function funcOpenDialog(attachments: Array<[]>) {
+        incidentattachments.value = attachments.flat()
+        openDialog.value = true
     }
 </script>

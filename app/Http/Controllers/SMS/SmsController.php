@@ -90,7 +90,7 @@ class SmsController extends Controller
                 $filename = Str::uuid() . '-' . $request->reference . '.' . $extension;
 
                 $path = $file->storeAs(
-                    'reports/attachments',
+                    'incident/attachments',
                     $filename,
                     'public'
                 );

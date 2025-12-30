@@ -25,7 +25,7 @@ class IncidentController extends Controller
     public function processedMessages()
     {
         $incidents = Incident::orderBy('created_at', 'desc')
-            ->with('barangay', 'classification', 'classification')
+            ->with('barangay', 'classification', 'classification', 'attachments')
             ->paginate(10)
             ->withQueryString();
 
