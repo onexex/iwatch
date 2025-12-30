@@ -4,11 +4,12 @@ namespace App\Http\Controllers\SMS;
 
 use Inertia\Inertia;
 use App\Models\Barangay;
+use App\Models\Incident;
 use App\Models\SmsMessage;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Classification;
 use App\Http\Controllers\Controller;
-use App\Models\Incident;
 use Illuminate\Support\Facades\Auth;
 
 class SmsController extends Controller
@@ -80,6 +81,26 @@ class SmsController extends Controller
             'actions' => $request->actions,
             'created_by' => Auth::user()->id,
         ]);
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+    
+                $extension = $file->getClientOriginalExtension();
+
+                $filename = Str::uuid() . '-' . $request->reference . '.' . $extension;
+
+                $path = $file->storeAs(
+                    'reports/attachments',
+                    $filename,
+                    'public'
+                );
+
+                $incident->attachments()->create([
+                    'file_name' => $filename,
+                    'url' => $path,
+                ]);
+            }
+        }
 
         SmsMessage::where('id', $request->smsId)
             ->update(['is_read' => 1,'processed_by' => Auth::user()->id]);

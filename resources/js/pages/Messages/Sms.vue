@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { InboxIcon, PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from 'lucide-vue-next';
 import { Loader2 } from 'lucide-vue-next';
 
 
@@ -33,7 +33,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { reactive, computed } from 'vue';
+import { reactive, computed, ref, onBeforeUnmount } from 'vue';
 
 const props=defineProps<{
     messages: {
@@ -87,13 +87,15 @@ const form = useForm({
     informationProper: '',
     analysis: '',
     actions: '',
-    attachment: [],
+    attachments: [] as File[],
     classificationId: null as number | null,
     selectedRegion: '',
     selectedProvince: '',
     selectedCity: '',
     selectedBarangay: '',
 });
+
+const previews = ref<string[]>([])
 
 const addToSMS = (item: {
     message: string;
@@ -154,6 +156,31 @@ const filteredMessages = computed(() => {
         return statusMatch && dateFromMatch && dateToMatch;
     });
 });
+
+    function onAttachmentsChange(event: Event) {
+        const target = event.target as HTMLInputElement
+        if (!target.files) return
+
+        const files = Array.from(target.files)
+
+        form.attachments.push(...files)
+
+        files.forEach(file => {
+            previews.value.push(URL.createObjectURL(file))
+        })
+
+        target.value = ''
+    }
+
+    function removeImage(index: number) {
+        URL.revokeObjectURL(previews.value[index]) 
+        previews.value.splice(index, 1)
+        form.attachments.splice(index, 1)
+    }
+
+    onBeforeUnmount(() => {
+        previews.value.forEach(url => URL.revokeObjectURL(url))
+    })
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -605,16 +632,45 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         :required="true"
                                         class="min-h-[120px]"
                                     />
-                                    <Input
+                                    <Textarea
                                         v-model="form.analysis"
                                         label="Analysis"
                                         placeholder="Analyst comments..."
                                     />
-                                    <Input
+                                    <Textarea
                                         v-model="form.actions"
                                         label="Actions"
                                         placeholder="Recommended next steps..."
                                     />
+                                </div>
+                                <div class="mt-4">
+                                    <Input 
+                                        label="Attachments"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        @change="onAttachmentsChange"
+                                    />
+                                    <div class="flex flex-wrap gap-3 mt-2">
+                                        <div
+                                            v-for="(preview, index) in previews"
+                                            :key="index"
+                                            class="relative w-24 h-24"
+                                        >
+                                        <img
+                                            :src="preview"
+                                            class="w-full h-full object-cover rounded border"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            @click="removeImage(index)"
+                                            class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                                        >
+                                            ×
+                                        </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </main>
