@@ -4,6 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { InboxIcon, PlusIcon } from 'lucide-vue-next';
 import { Loader2 } from 'lucide-vue-next';
+import { XIcon, CalendarIcon, FilterIcon } from 'lucide-vue-next';
 
 
 // shadcn/ui table components
@@ -168,53 +169,59 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="p-6">
             <h1 class="mb-4 text-2xl font-bold">Messages</h1>
 
-            <div class="flex flex-col gap-4">
-    <div class="flex flex-wrap items-center gap-4 px-1">
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-muted-foreground uppercase">Filter:</span>
-            <select 
-                v-model="filters.status"
-                class="h-9 w-32 rounded-md border border-input bg-background px-2 py-1 text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
-            >
-                <option value="Unprocess">Unprocessed</option>
-                <option value="Processed">Processed</option>
-                <option value="Archive">Archive</option>
-            </select>
-        </div>
+           <div class="flex flex-col gap-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4 shadow-sm">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Status</span>
+                            <select 
+                                v-model="filters.status"
+                                class="h-10 w-[140px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50 cursor-pointer"
+                            >
+                                <option value="Unprocess">Unprocessed</option>
+                                <option value="Processed">Processed</option>
+                                <option value="Archive">Archive</option>
+                            </select>
+                        </div>
 
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-muted-foreground uppercase">From:</span>
-            <input 
-                type="date" 
-                v-model="filters.date_from"
-                class="h-9 rounded-md border border-input bg-background px-2 py-1 text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
-            />
-        </div>
+                        <div class="hidden h-10 w-[1px] bg-border md:block mx-1 mt-4"></div>
 
-        <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-muted-foreground uppercase">To:</span>
-            <input 
-                type="date" 
-                v-model="filters.date_to"
-                class="h-9 rounded-md border border-input bg-background px-2 py-1 text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
-            />
-        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Date Range</span>
+                            <div class="flex items-center gap-2">
+                                <input 
+                                    type="date" 
+                                    v-model="filters.date_from"
+                                    class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50"
+                                />
+                                <span class="text-muted-foreground text-xs">to</span>
+                                <input 
+                                    type="date" 
+                                    v-model="filters.date_to"
+                                    class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50"
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-        <Button 
-            v-if="filters.date_from || filters.date_to || filters.status !== 'Unprocess'"
-            variant="ghost" 
-            size="sm" 
-            class="h-8 text-xs underline"
-            @click="Object.assign(filters, { date_from: '', date_to: '', status: 'Unprocess' })"
-        >
-            Clear Filters
-        </Button>
-    </div>
+                    <div class="flex items-center gap-2 mt-auto pb-0.5">
+                        <Button 
+                            v-if="filters.date_from || filters.date_to || filters.status !== 'Unprocess'"
+                            variant="outline" 
+                            size="sm" 
+                            class="h-9 px-3 text-xs font-medium transition-all hover:bg-destructive hover:text-destructive-foreground"
+                            @click="Object.assign(filters, { date_from: '', date_to: '', status: 'Unprocess' })"
+                        >
+                            <XIcon class="mr-2 h-3.5 w-3.5" />
+                            Clear Filters
+                        </Button>
+                    </div>
+                </div>
 
-    <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
-        </div>
-</div>
-
+                <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
+                    </div>
+            </div>
+            
             <div class="flex flex-col gap-4">
                 <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
                     <div class="relative h-[650px] overflow-auto">
@@ -319,7 +326,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </TableRow>
                             </TableBody>
                         </Table>
+                        
                     </div>
+                    <p class="text-xs text-muted-foreground italic p-4">
+    Showing {{ filteredMessages.length }} of {{ props.messages.length }} messages
+</p>
                 </div>
             </div>
 
