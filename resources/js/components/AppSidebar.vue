@@ -15,7 +15,7 @@ import { dashboard } from '@/routes';
 // import { sms } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Minus } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, ListIcon, Minus } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import { MessageSquare } from 'lucide-vue-next';
 import { MapPinMinus } from 'lucide-vue-next';
@@ -43,6 +43,11 @@ const mainNavItems: NavItem[] = [
         title: 'Verified Incident Tracker',
         href: '/mapping',
         icon: MapPinMinus,
+    },
+    {
+        title: 'Classifications',
+        href: '/classifications',
+        icon: ListIcon,
     },
 
     
