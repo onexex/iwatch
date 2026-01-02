@@ -39,6 +39,11 @@ class SmsController extends Controller
         
         $classifications = Classification::all();
 
+        $subjects = Incident::select('subject')
+            ->whereNotNUll('subject')
+            ->distinct('subject')
+            ->pluck('subject');
+
         $year = date('Y');
         $incident = Incident::whereYear('created_at', $year)->count();
         $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
@@ -52,6 +57,7 @@ class SmsController extends Controller
             'barangays' => $barangay,
             'classifications' => $classifications,
             'filenumber' => $filenumber,
+            'subjects' => $subjects,
         ]);
     }
 

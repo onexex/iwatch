@@ -1,43 +1,46 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
-import { PlusIcon } from 'lucide-vue-next';
-import { Loader2 } from 'lucide-vue-next';
-import type { AcceptableValue } from 'reka-ui'
-import { XIcon, CalendarIcon, FilterIcon } from 'lucide-vue-next';
+    import AppLayout from '@/layouts/AppLayout.vue';
+    import { type BreadcrumbItem } from '@/types';
+    import { Head, useForm } from '@inertiajs/vue3';
+    import { PlusIcon } from 'lucide-vue-next';
+    import { Loader2 } from 'lucide-vue-next';
+    import type { AcceptableValue } from 'reka-ui'
+    import { XIcon} from 'lucide-vue-next';
 
 
-// shadcn/ui table components
-import Button from '@/components/ui/button/Button.vue';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import Input from '@/components/ui/input/Input.vue';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
-import { reactive, computed, ref, onBeforeUnmount } from 'vue';
-import axios from 'axios';
+    // shadcn/ui table components
+    import Button from '@/components/ui/button/Button.vue';
+    import {
+        Dialog,
+        DialogClose,
+        DialogContent,
+        DialogFooter,
+        DialogHeader,
+        DialogTitle,
+    } from '@/components/ui/dialog';
+    import Input from '@/components/ui/input/Input.vue';
+    import {
+        Select,
+        SelectContent,
+        SelectItem,
+        SelectTrigger,
+        SelectValue,
+    } from '@/components/ui/select';
+    import {
+        Table,
+        TableBody,
+        TableCell,
+        TableHead,
+        TableHeader,
+        TableRow,
+    } from '@/components/ui/table';
+   
+    import SubjectCombobox from './Partials/SubjectCombobox.vue'
+    import { Textarea } from '@/components/ui/textarea';
+    import { reactive, computed, ref, onBeforeUnmount } from 'vue';
+    import axios from 'axios';
 
+   
 const props=defineProps<{
     messages: {
         id: number;
@@ -70,6 +73,7 @@ const props=defineProps<{
         other: number;
     }[];
     filenumber: string,
+    subjects: string[];
 }>();
 
 const form = useForm({
@@ -455,12 +459,18 @@ const filteredMessages = computed(() => {
                                     :readonly="true"
 
                                 />
-                                <Input
-                                    v-model="form.subject"
-                                    label="Subject"
-                                    class="md:col-span-2"
-                                    :required="true"
-                                />
+                                <div class="w-full">
+                                    <label
+                                        class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        for="label"
+                                    >
+                                        Subject
+                                    </label>
+                                    <SubjectCombobox
+                                        v-model="form.subject"
+                                        :subjects="subjects"
+                                    />
+                                </div>
 
                                 <Input
                                     v-model="form.dateOfReport"
