@@ -17,6 +17,7 @@ const props = defineProps<{
   autofocus?: boolean
   accept?: string
   multiple?: boolean
+  readonly?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -54,6 +55,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
       :autofocus="autofocus"
       :accept="accept"
       :multiple="multiple"
+      :readonly="readonly"
     >
     <span
       v-if="error"

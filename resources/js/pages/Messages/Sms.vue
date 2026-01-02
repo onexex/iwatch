@@ -445,12 +445,15 @@ const filteredMessages = computed(() => {
                                     label="File Number"
                                     placeholder="REQ-2024-001"
                                     :required="true"
+                                    :readonly="true"
                                 />
                                 <Input
                                     v-model="form.reference"
                                     label="Reference"
                                     placeholder="Ref code..."
                                     :required="true"
+                                    :readonly="true"
+
                                 />
                                 <Input
                                     v-model="form.subject"

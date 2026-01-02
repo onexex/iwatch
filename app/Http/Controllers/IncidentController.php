@@ -19,7 +19,7 @@ class IncidentController extends Controller
     {
         // We use 'with' to eager-load the barangay coordinates 
         // linked via address_id
-        return response()->json(Incident::with('barangay')->get());
+        return response()->json(Incident::with('barangay','attachments')->get());
     }
 
     public function processedMessages()
