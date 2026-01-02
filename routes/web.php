@@ -6,6 +6,7 @@ use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SMS\SmsController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\ClassificationController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -29,6 +30,9 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::post('/sms/fetch-message', [SmsController::class, 'store'])->name('sms.fetchMessages');
 
     Route::get('/processed-messages', [IncidentController::class, 'processedMessages'])->name('processed-messages.index');
+
+    Route::resource('classifications', ClassificationController::class);
+    Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');
 });
 
 require __DIR__.'/settings.php';

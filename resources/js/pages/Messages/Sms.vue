@@ -2,8 +2,9 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
-import { InboxIcon, PlusIcon } from 'lucide-vue-next';
+import { PlusIcon } from 'lucide-vue-next';
 import { Loader2 } from 'lucide-vue-next';
+import type { AcceptableValue } from 'reka-ui'
 import { XIcon, CalendarIcon, FilterIcon } from 'lucide-vue-next';
 
 
@@ -34,7 +35,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { reactive, computed } from 'vue';
+import { reactive, computed, ref, onBeforeUnmount } from 'vue';
+import axios from 'axios';
 
 const props=defineProps<{
     messages: {
@@ -64,8 +66,10 @@ const props=defineProps<{
     classifications: {
         id: number;
         name: string;
+        description: string;
         other: number;
     }[];
+    filenumber: string,
 }>();
 
 const form = useForm({
@@ -73,7 +77,7 @@ const form = useForm({
     smsId: 0,
     smsinformation: '',
     receivedAt: '',
-    file_number: '',
+    file_number: props.filenumber,
     reference: '',
     subject: '',
     dateOfReport: '',
@@ -86,13 +90,15 @@ const form = useForm({
     informationProper: '',
     analysis: '',
     actions: '',
-    attachment: [],
+    attachments: [] as File[],
     classificationId: null as number | null,
     selectedRegion: '',
     selectedProvince: '',
     selectedCity: '',
     selectedBarangay: '',
 });
+
+const previews = ref<string[]>([])
 
 const addToSMS = (item: {
     message: string;
@@ -153,12 +159,48 @@ const filteredMessages = computed(() => {
     });
 });
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Messages',
-        href: '/sms',
-    },
-];
+    function onAttachmentsChange(event: Event) {
+        const target = event.target as HTMLInputElement
+        if (!target.files) return
+
+        const files = Array.from(target.files)
+
+        form.attachments.push(...files)
+
+        files.forEach(file => {
+            previews.value.push(URL.createObjectURL(file))
+        })
+
+        target.value = ''
+    }
+
+    function removeImage(index: number) {
+        URL.revokeObjectURL(previews.value[index]) 
+        previews.value.splice(index, 1)
+        form.attachments.splice(index, 1)
+    }
+
+    onBeforeUnmount(() => {
+        previews.value.forEach(url => URL.revokeObjectURL(url))
+    })
+
+    async function changedClassification(value: AcceptableValue) {
+        const response = await axios.get('/processed-sms-get-reference', {
+            params: {
+                classification_id: value,
+            }
+        })
+        if (response.data) {
+            form.reference = response.data
+        }
+    }
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Messages',
+            href: '/sms',
+        },
+    ];
 </script>
 
 <template>
@@ -335,7 +377,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <Dialog v-model:open="form.dialogueOpen">
                 <DialogContent
-                    class="flex max-h-[95vh] max-w-7xl  flex-col overflow-hidden p-0"
+                    class="flex max-h-[95vh] max-w-3/4  flex-col overflow-hidden p-0"
                 >
                     <DialogHeader class="border-b bg-muted/20 px-6 py-4">
                         <DialogTitle class="text-xl font-bold tracking-tight"
@@ -469,8 +511,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Select
                                         v-model="form.classificationId"
                                         :error="form.errors.classificationId"
+                                        @update:modelValue="changedClassification"
+                                        class="w-full"
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger
+                                            class="w-full"
+                                        >
                                             <SelectValue
                                                 placeholder="Select classification"
                                             />
@@ -480,8 +526,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 v-for="item in classifications"
                                                 :key="item.id"
                                                 :value="item.id"
+                                                class="w-full"
                                             >
-                                                {{ item.name }}
+                                                {{ item.description }}
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -609,16 +656,45 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         :required="true"
                                         class="min-h-[120px]"
                                     />
-                                    <Input
+                                    <Textarea
                                         v-model="form.analysis"
                                         label="Analysis"
                                         placeholder="Analyst comments..."
                                     />
-                                    <Input
+                                    <Textarea
                                         v-model="form.actions"
                                         label="Actions"
                                         placeholder="Recommended next steps..."
                                     />
+                                </div>
+                                <div class="mt-4">
+                                    <Input 
+                                        label="Attachments"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        @change="onAttachmentsChange"
+                                    />
+                                    <div class="flex flex-wrap gap-3 mt-2">
+                                        <div
+                                            v-for="(preview, index) in previews"
+                                            :key="index"
+                                            class="relative w-24 h-24"
+                                        >
+                                        <img
+                                            :src="preview"
+                                            class="w-full h-full object-cover rounded border"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            @click="removeImage(index)"
+                                            class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                                        >
+                                            ×
+                                        </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </main>

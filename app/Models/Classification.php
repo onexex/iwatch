@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Classification extends Model
 {
-    protected $fillable = ['name', 'other'];
+    protected $fillable = ['name', 'other', 'description'];
 }

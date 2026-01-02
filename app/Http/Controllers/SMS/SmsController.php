@@ -4,11 +4,12 @@ namespace App\Http\Controllers\SMS;
 
 use Inertia\Inertia;
 use App\Models\Barangay;
+use App\Models\Incident;
 use App\Models\SmsMessage;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Classification;
 use App\Http\Controllers\Controller;
-use App\Models\Incident;
 use Illuminate\Support\Facades\Auth;
 
 class SmsController extends Controller
@@ -38,6 +39,11 @@ class SmsController extends Controller
         
         $classifications = Classification::all();
 
+        $year = date('Y');
+        $incident = Incident::whereYear('created_at', $year)->count();
+        $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
+        $filenumber = 'WMSO-' . $year . '-' . $num; 
+
         return Inertia::render('Messages/Sms', [
             'messages' => $messages,
             'regions' => $region,
@@ -45,6 +51,7 @@ class SmsController extends Controller
             'cities' => $municipality,
             'barangays' => $barangay,
             'classifications' => $classifications,
+            'filenumber' => $filenumber,
         ]);
     }
 
@@ -75,9 +82,44 @@ class SmsController extends Controller
             'created_by' => Auth::user()->id,
         ]);
 
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+    
+                $extension = $file->getClientOriginalExtension();
+
+                $filename = Str::uuid() . '-' . $request->reference . '.' . $extension;
+
+                $path = $file->storeAs(
+                    'incident/attachments',
+                    $filename,
+                    'public'
+                );
+
+                $incident->attachments()->create([
+                    'file_name' => $filename,
+                    'url' => $path,
+                ]);
+            }
+        }
+
         SmsMessage::where('id', $request->smsId)
             ->update(['is_read' => 1,'processed_by' => Auth::user()->id]);
 
         return redirect()->back();
+    }
+
+    public function getReference(Request $request)
+    {
+        $year = date('Y');
+        $classification = Classification::where('id', $request->classification_id)
+            ->first();
+
+        $incident = Incident::whereYear('created_at', $year)
+            ->where('classification_id', $request->classification_id)
+            ->count();
+        $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
+        $ref = $classification?->name . '-' . $year . '-' . $num; 
+
+        return response()->json($ref);
     }
 }
