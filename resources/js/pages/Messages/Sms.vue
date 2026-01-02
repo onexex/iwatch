@@ -127,22 +127,21 @@ const submit = () => {
 const filters = reactive({
     date_from: '',
     date_to: '',
-    status: 'Unprocess' // Default matches your dropdown
+    status: 'Unprocess'  
 });
 
-// 2. Create the filtered computed property
+ 
 const filteredMessages = computed(() => {
     return props.messages.filter((messages) => {
-        // --- Status Filter Logic ---
+        
         const isProcessed = messages.processed_by !== null;
         let statusMatch = false;
 
         if (filters.status === 'Processed') statusMatch = isProcessed;
         else if (filters.status === 'Unprocess') statusMatch = !isProcessed;
-        else if (filters.status === 'Archive') statusMatch = true; // Show all or adjust based on your 'Archive' definition
+        else if (filters.status === 'Archive') statusMatch = true; 
 
-        // --- Date Filter Logic ---
-        // Assuming received_at is a string like "2023-10-25 14:30:00"
+ 
         const receivedDate = new Date(messages.received_at).setHours(0,0,0,0);
         const fromDate = filters.date_from ? new Date(filters.date_from).setHours(0,0,0,0) : null;
         const toDate = filters.date_to ? new Date(filters.date_to).setHours(0,0,0,0) : null;
@@ -170,7 +169,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             <h1 class="mb-4 text-2xl font-bold">Messages</h1>
 
            <div class="flex flex-col gap-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4 shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-card p-4 ">
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="flex flex-col gap-1.5">
                             <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Status</span>
@@ -223,11 +222,11 @@ const breadcrumbs: BreadcrumbItem[] = [
             </div>
             
             <div class="flex flex-col gap-4">
-                <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
+                <div class="overflow-hidden rounded-xl border bg-card ">
                     <div class="relative h-[650px] overflow-auto">
                         <Table>
                             <TableHeader
-                                class="sticky top-0 z-10 bg-muted/90 shadow-sm backdrop-blur-md"
+                                class="sticky top-0 z-10 bg-muted/90  backdrop-blur-md"
                             >
                                 <TableRow>
                                     <TableHead
@@ -329,8 +328,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                         
                     </div>
                     <p class="text-xs text-muted-foreground italic p-4">
-    Showing {{ filteredMessages.length }} of {{ props.messages.length }} messages
-</p>
+                        Showing {{ filteredMessages.length }} of {{ props.messages.length }} messages
+                    </p>
                 </div>
             </div>
 
