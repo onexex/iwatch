@@ -225,7 +225,7 @@ const filteredMessages = computed(() => {
                             </select>
                         </div>
 
-                        <div class="hidden h-10 w-[1px] bg-border md:block mx-1 mt-4"></div>
+                        <div class="hidden h-10 w-px bg-border md:block mx-1 mt-4"></div>
 
                         <div class="flex flex-col gap-1.5">
                             <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Date Range</span>
