@@ -15,7 +15,7 @@
       <Command>
         <CommandInput
           v-model="search"
-          placeholder="Search or type subject..."
+          :placeholder="placeholder"
           @keydown.enter.prevent="acceptTyped"
         />
 
@@ -52,6 +52,7 @@
     const props = defineProps<{
         modelValue: string
         subjects: string[]
+        placeholder?: string
     }>()
 
     const emit = defineEmits(['update:modelValue'])
@@ -105,6 +106,6 @@
     }
 
     const displayLabel = computed(() =>
-        value.value || 'Select or type subject'
+        value.value || props.placeholder
     )
 </script>

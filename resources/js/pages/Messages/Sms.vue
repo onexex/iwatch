@@ -469,6 +469,7 @@ const filteredMessages = computed(() => {
                                     <SubjectCombobox
                                         v-model="form.subject"
                                         :subjects="subjects"
+                                        placeholder="Input ot Select Subject"
                                     />
                                 </div>
 
@@ -499,12 +500,25 @@ const filteredMessages = computed(() => {
                                     label="Date Acquired"
                                     type="date"
                                 />
-                                <Input
-                                    v-model="form.mannerAcquired"
-                                    label="Manner Acquired"
-                                    placeholder="Method of collection"
-                                />
 
+                                <div class="w-full">
+                                    <label
+                                        class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        for="label"
+                                    >
+                                        Manner Acquired
+                                    </label>
+                                    <SubjectCombobox
+                                        v-model="form.mannerAcquired"
+                                        placeholder="Method of collection"
+                                        :subjects="[
+                                            'Phone Call',
+                                            'Contact Meeting',
+                                            'Elicitation',
+                                            'Casing and Surveillance',
+                                        ]"
+                                    />
+                                </div>
                                 <div
                                     class="mt-4 flex items-center gap-2 md:col-span-2"
                                 >
