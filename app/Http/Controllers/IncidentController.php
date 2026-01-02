@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Incident;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class IncidentController extends Controller
 {
@@ -32,5 +33,15 @@ class IncidentController extends Controller
         return Inertia::render('Messages/ProcessedMessage', [
             'messages' => $incidents,
         ]);
+    }
+
+    public function download(Incident $incident, Request $request)
+    {
+        $pdf = Pdf::loadView('incidents.incidentpdf', [
+            'incident' => $incident,
+            'copyFor' => $request->copyFor
+        ]);
+
+        return $pdf->stream("incident-{$incident->id}.pdf");
     }
 }
