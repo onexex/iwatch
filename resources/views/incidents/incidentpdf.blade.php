@@ -17,18 +17,16 @@
         }
 
         .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 2000px; 
-            margin-left: -1000px; 
+           position: absolute;
+            top: 40%;
+            left: 40%;
+            width: 800px;
+            margin-left: -300px;
             text-align: center;
             transform: rotate(-35deg);
-            
-            font-size: 60pt;
+            font-size: 75pt;
             color: rgba(199, 8, 8, 0.15);
             font-weight: bolder;
-            white-space: nowrap; 
             text-transform: uppercase;
         }
 
