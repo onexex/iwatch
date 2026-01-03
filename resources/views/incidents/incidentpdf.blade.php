@@ -4,39 +4,70 @@
     <meta charset="utf-8">
     <title>Information Report</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; }
+        body { font-family: Arial, sans-serif; font-size: 15px; line-height: 1.4; }
 
         /* WATERMARK */
-        .watermark {
+        .watermark-wrapper {
             position: fixed;
-            left: 20;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 100px;
-            color: rgba(200,0,0,0.15);
-            z-index: 0;
-            pointer-events: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1000;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2000px; 
+            margin-left: -1000px; 
+            text-align: center;
+            transform: rotate(-35deg);
+            
+            font-size: 60pt;
+            color: rgba(199, 8, 8, 0.15);
+            font-weight: bolder;
+            white-space: nowrap; 
             text-transform: uppercase;
-            font-weight: bold;
         }
 
         h2 { text-align: center; margin: 5px 0; }
         h2 { text-decoration: underline; font-weight: bold; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; z-index: 1; position: relative; }
+        table { 
+            width: 100%; 
+            table-layout: fixed; /* This forces the 50/50 split you requested */
+            border-collapse: collapse;
+        }   
         th, td { border: 1px solid #000; padding: 5px; vertical-align: top; word-wrap: break-word; }
 
         /* Number column */
-        .num { width: 25px; text-align: center; font-weight: bold; }
 
         /* Label and value equal width */
         .label, .value { width: calc(50% - 25px); }
-
+        .label { 
+            width: 45%; 
+            font-weight: bold; 
+        }
+        .num { 
+            width: 25px; 
+            text-align: center; 
+            vertical-align: middle;
+        }
+        .info-content { 
+            margin-left: 10px;
+            text-indent: 2em;
+        }
+        .value { 
+            width: 45%; 
+        }
         th { background-color: #f0f0f0; text-align: left; }
 
         .section-title {
             font-weight: bold;
             margin-top: 15px;
-            border: 1px solid #000;
+            margin-left: 10px;
             padding: 5px;
         }
 
@@ -44,7 +75,11 @@
     </style>
 </head>
 <body>
-    <div class="watermark">COPY FOR {{ $copyFor ?? '' }}</div>
+    <div class="watermark-wrapper">
+        <div class="watermark">
+            COPY FOR {{ $copyFor ?? '' }}
+        </div>
+    </div>
 
     <h3>A. Information Report/s Submitted</h3>
     <h2>INFORMATION REPORT</h2>
@@ -69,7 +104,7 @@
             <tr>
                 <td class="num">4</td>
                 <td class="label">DATE OF REPORT</td>
-                <td class="value">{{ $incident->date_of_report }}</td>
+                <td class="value">{{ date('F d, Y', strtotime($incident->date_of_report)) }}</td>
             </tr>
             <tr>
                 <td class="num">5</td>
@@ -94,7 +129,7 @@
             <tr>
                 <td class="num">9</td>
                 <td class="label">DATE ACQUIRED</td>
-                <td class="value">{{ $incident->date_acquired }}</td>
+                <td class="value">{{ date('F d, Y', strtotime($incident->date_acquired)) }}</td>
             </tr>
             <tr>
                 <td class="num">10</td>
@@ -105,9 +140,18 @@
     </table>
 
     <div class="section-title">11. INFORMATION PROPER</div>
-    <p>
-        {!! nl2br(e($incident->information_proper)) !!}
-    </p>
+    @php
+        $paragraphs = preg_split("/\n\s*\n/", $incident->information_proper);
+    @endphp
+    @if(count($paragraphs))
+        <p class="info-content">
+            {{ $paragraphs[0] }}
+        </p>
+
+        @foreach(array_slice($paragraphs, 1) as $p)
+            <p class="info-content">{{ $p }}</p>
+        @endforeach
+    @endif
 
     <table>
         <tbody>
