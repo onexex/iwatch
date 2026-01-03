@@ -153,7 +153,7 @@
         DialogTitle,
     } from '@/components/ui/dialog';
     import Input from '@/components/ui/input/Input.vue';
-import { PencilIcon } from 'lucide-vue-next';
+import { Loader2, PencilIcon } from 'lucide-vue-next';
 
     const breadcrumbs: BreadcrumbItem[] = [
         {

@@ -33,6 +33,7 @@ Route::middleware('auth', 'verified')->group(function () {
 
     Route::resource('classifications', ClassificationController::class);
     Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');
+    Route::get('/download-incident/{incident}', [IncidentController::class, 'download'])->name('incident.download');
 });
 
 require __DIR__.'/settings.php';

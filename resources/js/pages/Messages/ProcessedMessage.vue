@@ -79,7 +79,7 @@
                                     <TableCell class="font-medium">
                                         {{ sms.barangay.barangay }} , {{ sms.barangay.city_municipality }} , {{ sms.barangay.province }}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell class="gap-2 flex">
                                         <Button
                                             variant="secondary"
                                             size="sm"
@@ -87,6 +87,14 @@
                                         >
                                             <EyeIcon className="w-4 h-4 mr-1" />
                                             View Attachment
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            @click="funcDOwnloadIncident(sms.id)"
+                                        >
+                                            <FileDown className="w-4 h-4 mr-1" />
+                                            Download
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -156,6 +164,31 @@
                                 </div>
                             </DialogContent>
                         </Dialog>
+                        <Dialog v-model:open="downloadDialog">
+                            <DialogContent class="max-w-3xl">
+                                <DialogHeader>
+                                    <DialogTitle>Download Incident</DialogTitle>
+                                </DialogHeader>
+                                <div>
+                                    <Input 
+                                        v-model="copyfor"
+                                        label="Copy For"
+                                        placeholder="Copy for"
+                                        class="mb-2"
+                                        :error="copyforError"
+                                    />
+                                    <Button
+                                        variant="secondary"
+                                        class="cursor-pointer"
+                                        size="sm"
+                                        @click="downloadFile()"
+                                    >
+                                        <FileDown className="w-4 h-4 mr-1" />
+                                        Download
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 </div>  
             </div>          
@@ -167,6 +200,7 @@
     import { Head, router } from '@inertiajs/vue3'
     import { type BreadcrumbItem } from '@/types'
     import { Button } from "@/components/ui/button"
+    import Input from '@/components/ui/input/Input.vue';
 
     import {
         Table,
@@ -192,7 +226,7 @@
         DialogHeader,
         DialogTitle,
     } from "@/components/ui/dialog"
-    import { EyeIcon } from 'lucide-vue-next'
+    import { EyeIcon, FileDown } from 'lucide-vue-next'
     import { ref } from 'vue'
 
     interface IncidentAttachment {
@@ -215,7 +249,12 @@
     })
 
     const openDialog = ref(false)
+    const incidentId = ref(0)
+    const copyfor = ref("")
+    const copyforError = ref("")
     const incidentattachments = ref<IncidentAttachment[]>([])
+
+    const downloadDialog = ref(false)
 
     function changePage(page: number) {
         router.get(
@@ -228,5 +267,24 @@
     function funcOpenDialog(attachments: Array<[]>) {
         incidentattachments.value = attachments.flat()
         openDialog.value = true
+    }
+
+    function funcDOwnloadIncident(id: number) {
+        incidentId.value = id
+        downloadDialog.value = true
+    }
+
+    function downloadFile() {
+        if (copyfor.value == "") {
+            copyforError.value = "Please input copy for"
+            return
+        }
+         const params = new URLSearchParams({
+            copyFor: copyfor.value
+        })
+
+        const url = `/download-incident/${incidentId.value}?${params.toString()}`
+
+        window.open(url, '_blank', 'noopener,noreferrer')
     }
 </script>
