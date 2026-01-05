@@ -9,7 +9,7 @@ use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ClassificationController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
+    return Inertia::render('auth/Login', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
