@@ -408,6 +408,8 @@ export default defineComponent({
             if (t === 'MWP/OWP' || t === 'mwp/owp') return '#FDAAAA';
             if (t === 'CIW' || t === 'ciw') return '#DE802B';
             if (t === 'Others' || t === 'others') return '#F1E6C9';
+            if (t === 'MILF/MNLF' || t === 'milt/mnlf') return '#15c799';
+           
 
             return '#16a34a';
         };
@@ -422,6 +424,7 @@ export default defineComponent({
             if (t === 'MWP/OWP' || t === 'mwp/owp') return 'bg-red-200';
             if (t === 'CIW' || t === 'ciw') return 'bg-orange-500';
             if (t === 'Others' || t === 'others') return 'bg-yellow-200';
+            if (t === 'MILF/MNLF' || t === 'milt/mnlf') return 'bg-green-600';
 
             return 'bg-green-600';
         };
