@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
+// import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/vue3';
 import { Bar, Doughnut } from 'vue-chartjs';
@@ -35,16 +35,33 @@ const barangayChart = computed(() => ({
     }]
 }));
 
-const typeChart = computed(() => ({
-    labels: Object.keys(props.chartData.types || {}),
-    datasets: [{
-        // Cast the values to number[] here as well
-        data: Object.values(props.chartData.types || {}) as number[],
-        backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'],
-        borderWidth: 0
-    }]
-}));
+// Classification Doughnut Chart (Using your Color Coding)
+const typeChart = computed(() => {
+    const labels = Object.keys(props.chartData.types || {});
+    return {
+        labels: labels,
+        datasets: [{
+            data: Object.values(props.chartData.types || {}) as number[],
+            backgroundColor: labels.map(label => getIncidentColor(label)),
+            borderWidth: 0,
+            hoverOffset: 15
+        }]
+    };
+});
 
+// Your specific color logic
+const getIncidentColor = (type: string) => {
+    const t = (type || '').toLowerCase().trim();
+    if (t === 'tg1(ctg)') return '#dc2626';
+    if (t === 'tg2(ltg)') return '#2563eb';
+    if (t === 'tg3(cg)') return '#000000';
+    if (t === 'pags/ppags') return '#eab308';
+    if (t === 'cfo(cppnpandf)') return '#980404';
+    if (t === 'mwp/owp') return '#FDAAAA';
+    if (t === 'ciw') return '#DE802B';
+    if (t === 'milf/mnlf') return '#15c799';
+    return '#F1E6C9'; 
+};
 const options = { 
     responsive: true, 
     maintainAspectRatio: false, 
@@ -54,7 +71,7 @@ const options = {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard().url,
+        href: '/dashboard',
     },
 ];
 </script>
@@ -91,19 +108,23 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Bar :data="barangayChart" :options="options" />
                     </div>
                 </div>
-
-                <div class="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-                    <h3 class="font-bold text-sm uppercase mb-6 text-center">Classification</h3>
+<div class="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border shadow-sm">
+                    <h3 class="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-6">Classification</h3>
                     <div class="h-[200px]">
                         <Doughnut :data="typeChart" :options="options" />
                     </div>
                     <div class="mt-6 space-y-2">
-                        <div v-for="(val, key, index) in chartData.types" :key="key" class="flex justify-between text-xs">
-                            <span class="text-muted-foreground flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'][index] }"></span>
+                        <div v-for="(val, key) in (chartData.types || {})" :key="key" class="flex justify-between text-xs items-center">
+                            <span class="text-muted-foreground flex items-center gap-2 font-bold uppercase tracking-tighter">
+                                <span 
+                                    class="w-2.5 h-2.5 rounded-full border border-black/5 shadow-sm" 
+                                    :style="{ backgroundColor: getIncidentColor(String(key)) }"
+                                ></span>
                                 {{ key }}
                             </span>
-                            <span class="font-bold">{{ val }}</span>
+                            <span class="font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 px-2 py-0.5 rounded italic">
+                                {{ val }}
+                            </span>
                         </div>
                     </div>
                 </div>

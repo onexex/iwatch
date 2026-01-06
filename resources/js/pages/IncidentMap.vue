@@ -311,6 +311,8 @@ interface Incident {
     attachments: { id: number; url: string }[];
 }
 
+
+
 export default defineComponent({
     name: 'MapView',
     components: { AppLayout, Head },
