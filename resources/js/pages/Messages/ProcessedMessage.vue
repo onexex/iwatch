@@ -3,8 +3,102 @@
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
-              <h1 class="mb-4 text-2xl font-bold">Verified Information</h1>
-             <div class="flex flex-col gap-4">
+            <h1 class="mb-4 text-2xl font-bold">Verified Information</h1>
+            
+            <div class="flex flex-col gap-4">
+                <div class="items-center w-full gap-4 rounded-lg border bg-card p-4 ">
+                    <div class="grid grid-cols-6 gap-3">
+                        <div>
+                            <label
+                                class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                for="reporter"
+                            >
+                                Reporters
+                            </label>
+                            <Select
+                                v-model="form.reporter"
+                                :error="copyforError"
+                                class="w-full mb-2"
+                                @change="changeFilter"
+                            >
+                                <SelectTrigger
+                                    class="w-full mb-2"
+                                >
+                                    <SelectValue
+                                        placeholder="Select Reporter"
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem
+                                        v-for="item in reporters"
+                                        :key="item"
+                                        :value="item"
+                                        class="w-full"
+                                    >
+                                        {{ item }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            <label
+                                class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                for="source"
+                            >
+                                Source
+                            </label>
+                            <Select
+                                v-model="form.source"
+                                :error="copyforError"
+                                @change="changeFilter"
+                                class="w-full "
+                            >
+                                <SelectTrigger
+                                    class="w-full mb-2"
+                                >
+                                    <SelectValue
+                                        placeholder="Select Source"
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem
+                                        v-for="item in sources"
+                                        :key="item"
+                                        :value="item"
+                                        class="w-full"
+                                    >
+                                        {{ item }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Input 
+                            label="Date"
+                            type="date"
+                            v-model="form.dateFrom"
+                            @change="changeDate"
+                        />
+                        <Input 
+                            label="Date"
+                            type="date"
+                            v-model="form.dateTo"
+                            @change="changeDate"
+                        />
+                        
+                        <div class="flex items-center gap-2 mt-auto pb-0.5">
+                            <Button 
+                                v-if="form.dateFrom || form.dateTo || form.reporter || form.source"
+                                variant="outline" 
+                                size="sm" 
+                                class="h-9 px-3 text-xs font-medium transition-all hover:bg-destructive hover:text-destructive-foreground"
+                                @click="clearFilter"
+                            >
+                                <XIcon class="mr-2 h-3.5 w-3.5 text-black" />
+                                Clear Filters
+                            </Button>
+                        </div>
+                    </div>
+                </div>
                 <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
                     <div class="relative h-[650px] overflow-auto">
                         <Table>
@@ -34,7 +128,7 @@
                                     v-for="sms in messages.data"
                                     :key="sms.id"
                                 >
-                                    <TableCell class="font-medium">
+                                    <TableCell class="font-medium text-center">
                                         {{ sms.classification.name }}
                                     </TableCell>
                                     <TableCell class="font-medium">
@@ -68,7 +162,7 @@
                                         {{ sms.manner_acquired }}
                                     </TableCell>
                                     <TableCell class="font-medium">
-                                        {{ sms.information_proper }}
+                                         <span v-html="sms.information_proper.replace(/(.{30})/g, '$1<br>')"></span>
                                     </TableCell>
                                     <TableCell class="font-medium">
                                         {{ sms.analysis }}
@@ -215,7 +309,7 @@
 </template>
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue'
-    import { Head, router } from '@inertiajs/vue3'
+    import { Head, router, useForm } from '@inertiajs/vue3'
     import { type BreadcrumbItem } from '@/types'
     import { Button } from "@/components/ui/button"
     import Input from '@/components/ui/input/Input.vue';
@@ -252,7 +346,7 @@
         SelectTrigger,
         SelectValue,
     } from '@/components/ui/select';
-    import { EyeIcon, FileDown } from 'lucide-vue-next'
+    import { EyeIcon, FileDown, XIcon } from 'lucide-vue-next'
     import { ref } from 'vue'
 
     interface IncidentAttachment {
@@ -267,7 +361,7 @@
         },
     ]
 
-    defineProps({
+    const props = defineProps({
         messages: {
             type: Object,
             default: () => {}
@@ -276,6 +370,26 @@
             type: Object,
             default: () => {}
         },
+        reporters: {
+            type: Object,
+            default: () => {}
+        },
+        sources: {
+            type: Object,
+            default: () => {}
+        },
+        filter: {
+            type: Object,
+            default: () => {}
+        },
+    })
+    
+
+    const form = useForm({
+        source: props.filter.source ??'',
+        reporter:  props.filter.reporter ??'',
+        dateTo:  props.filter.dateTo ??'',
+        dateFrom:  props.filter.dateFrom ??'',
     })
 
     const openDialog = ref(false)
@@ -317,4 +431,33 @@
 
         window.open(url, '_blank', 'noopener,noreferrer')
     }
+
+    function changeFilter() {
+        router.get('/processed-messages', {
+            reporter: form.reporter,
+            source: form.source,
+            dateFrom: form.dateFrom,
+            dateTo: form.dateTo,
+        })
+    }
+
+    function changeDate() {
+        if (form.dateFrom != '' && form.dateTo != '') {
+            router.get('/processed-messages', {
+                reporter: form.reporter,
+                source: form.source,
+                dateFrom: form.dateFrom,
+                dateTo: form.dateTo,
+            })
+        }
+    }
+
+    function clearFilter() {
+        form.dateFrom = ''
+        form.dateTo = ''
+        form.source = ''
+        form.reporter = ''
+        router.get('/processed-messages')
+    }
+
 </script>
