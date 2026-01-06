@@ -23,7 +23,7 @@ class ClassificationController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Successfully added classification');
     }
 
     public function update(Classification $classification, Request $request) 
@@ -33,7 +33,7 @@ class ClassificationController extends Controller
             $classification->description = $request->description;
             $classification->save();
             
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Successfully updated classification');
         }
     }
 }

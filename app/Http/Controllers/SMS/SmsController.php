@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Classification;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreIncidentRequest;
 use Illuminate\Support\Facades\Auth;
 
 class SmsController extends Controller
@@ -44,6 +45,23 @@ class SmsController extends Controller
             ->distinct('subject')
             ->pluck('subject');
 
+        $fromDb = Incident::whereNotNull('manner_acquired')
+            ->pluck('manner_acquired')
+            ->toArray();
+
+        $defaults = [
+            'Phone Call',
+            'Contact Meeting',
+            'Elicitation',
+            'Casing and Surveillance',
+        ];
+
+        $methodofcollections = collect($fromDb)
+            ->merge($defaults)
+            ->unique()
+            ->values()
+            ->toArray();
+
         $year = date('Y');
         $incident = Incident::whereYear('created_at', $year)->count();
         $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
@@ -58,10 +76,11 @@ class SmsController extends Controller
             'classifications' => $classifications,
             'filenumber' => $filenumber,
             'subjects' => $subjects,
+            'methodofcollections' => $methodofcollections,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreIncidentRequest $request)
     {
         $classification = Classification::where('id', $request->classificationId)
             ->first();
@@ -75,7 +94,7 @@ class SmsController extends Controller
             'file_number' => $request->file_number,
             'reference' => $request->reference,
             'subject' => $request->subject,
-            'date_of_report' => $request->dateOfReport,
+            'date_of_report' => $request->date_of_report,
             'reporter' => $request->reporter,
             'designation' => $request->designation,
             'evaluation' => $request->evaluation,
@@ -111,7 +130,7 @@ class SmsController extends Controller
         SmsMessage::where('id', $request->smsId)
             ->update(['is_read' => 1,'processed_by' => Auth::user()->id]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Successfully processed message.');
     }
 
     public function getReference(Request $request)

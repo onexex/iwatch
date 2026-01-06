@@ -74,6 +74,7 @@ const props=defineProps<{
     }[];
     filenumber: string,
     subjects: string[];
+    methodofcollections: string[];
 }>();
 
 const form = useForm({
@@ -84,7 +85,7 @@ const form = useForm({
     file_number: props.filenumber,
     reference: '',
     subject: '',
-    dateOfReport: '',
+    date_of_report: '',
     reporter: '',
     designation: '',
     evaluation: '',
@@ -470,35 +471,41 @@ const filteredMessages = computed(() => {
                                         v-model="form.subject"
                                         :subjects="subjects"
                                         placeholder="Input ot Select Subject"
+                                        :error="form.errors.subject"
                                     />
                                 </div>
 
                                 <Input
-                                    v-model="form.dateOfReport"
+                                    v-model="form.date_of_report"
                                     label="Date of Report"
                                     type="date"
                                     :required="true"
+                                    :error="form.errors.date_of_report"
                                 />
                                 <Input
                                     v-model="form.reporter"
                                     label="Reporter"
                                     placeholder="Name of officer"
+                                    :error="form.errors.reporter"
                                 />
                                 <Input
                                     v-model="form.designation"
                                     label="Designation"
                                     placeholder="Rank/Position"
+                                    :error="form.errors.designation"
                                 />
                                 <Input
                                     v-model="form.source"
                                     label="Source"
                                     placeholder="Intelligence Source"
+                                    :error="form.errors.source"
                                 />
 
                                 <Input
                                     v-model="form.dateAcquired"
                                     label="Date Acquired"
                                     type="date"
+                                    :error="form.errors.dateAcquired"
                                 />
 
                                 <div class="w-full">
@@ -511,12 +518,8 @@ const filteredMessages = computed(() => {
                                     <SubjectCombobox
                                         v-model="form.mannerAcquired"
                                         placeholder="Method of collection"
-                                        :subjects="[
-                                            'Phone Call',
-                                            'Contact Meeting',
-                                            'Elicitation',
-                                            'Casing and Surveillance',
-                                        ]"
+                                        :subjects="methodofcollections"
+                                        :error="form.errors.mannerAcquired"
                                     />
                                 </div>
                                 <div
@@ -565,6 +568,7 @@ const filteredMessages = computed(() => {
                                     v-model="form.evaluation"
                                     label="Evaluation"
                                     placeholder="Initial assessment score"
+                                    :error="form.errors.evaluation"
                                 />
 
                                 <div
@@ -682,16 +686,19 @@ const filteredMessages = computed(() => {
                                         placeholder="Enter detailed narrative..."
                                         :required="true"
                                         class="min-h-[120px]"
+                                        :error="form.errors.informationProper"
                                     />
                                     <Textarea
                                         v-model="form.analysis"
                                         label="Analysis"
                                         placeholder="Analyst comments..."
+                                        :error="form.errors.analysis"
                                     />
                                     <Textarea
                                         v-model="form.actions"
                                         label="Actions"
                                         placeholder="Recommended next steps..."
+                                        :error="form.errors.actions"
                                     />
                                 </div>
                                 <div class="mt-4">

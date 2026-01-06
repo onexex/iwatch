@@ -44,6 +44,12 @@
       </Command>
     </PopoverContent>
   </Popover>
+  <span
+    v-if="error"
+    class="mt-1 text-sm text-destructive"
+  >
+    {{ error }}
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -53,6 +59,7 @@
         modelValue: string
         subjects: string[]
         placeholder?: string
+        error?: string
     }>()
 
     const emit = defineEmits(['update:modelValue'])

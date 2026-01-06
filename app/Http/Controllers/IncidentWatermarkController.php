@@ -27,7 +27,7 @@ class IncidentWatermarkController extends Controller
             'description' => $request->description,
         ]);
 
-        return Redirect()->back();
+        return redirect()->back()->with('success', 'Successfully added incident watermark');
     }
     
     
@@ -41,6 +41,6 @@ class IncidentWatermarkController extends Controller
                 'description' => $request->description,
             ]);
         }
-        return Redirect()->back();
+        return redirect()->back()->with('success', 'Successfully updated incident watermark');
     }
 }
