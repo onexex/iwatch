@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Incident;
+use App\Models\IncidentWatermark;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -29,17 +30,23 @@ class IncidentController extends Controller
             ->with('barangay', 'classification', 'classification', 'attachments')
             ->paginate(10)
             ->withQueryString();
+        
+        $watermarks = IncidentWatermark::get();
 
         return Inertia::render('Messages/ProcessedMessage', [
             'messages' => $incidents,
+            'watermarks' => $watermarks,
         ]);
     }
 
     public function download(Incident $incident, Request $request)
     {
+        $watermark = IncidentWatermark::where('id', $request->copyFor)->first();
         $pdf = Pdf::loadView('incidents.incidentpdf', [
             'incident' => $incident,
-            'copyFor' => $request->copyFor
+            'copyFor' => $watermark->name ?? '',
+            'bgColor' => $watermark->color ?? '#c7080826',
+            'attachments' => $incident->attachments,
         ]);
 
         return $pdf->stream("incident-{$incident->id}.pdf");
