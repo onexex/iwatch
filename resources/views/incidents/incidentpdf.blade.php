@@ -25,7 +25,6 @@
             text-align: center;
             transform: rotate(-35deg);
             font-size: 75pt;
-            color: rgba(199, 8, 8, 0.15);
             font-weight: bolder;
             text-transform: uppercase;
         }
@@ -74,7 +73,10 @@
 </head>
 <body>
     <div class="watermark-wrapper">
-        <div class="watermark">
+        <div 
+            class="watermark"
+            style="color: {{ $bgColor }}"
+        >
             COPY FOR {{ $copyFor ?? '' }}
         </div>
     </div>

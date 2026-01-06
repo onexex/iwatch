@@ -170,13 +170,31 @@
                                     <DialogTitle>Download Incident</DialogTitle>
                                 </DialogHeader>
                                 <div>
-                                    <Input 
-                                        v-model="copyfor"
-                                        label="Copy For"
-                                        placeholder="Copy for"
-                                        class="mb-2"
-                                        :error="copyforError"
-                                    />
+                                    <div>
+                                        <Select
+                                            v-model="copyfor"
+                                            :error="copyforError"
+                                            class="w-full  mb-2"
+                                        >
+                                            <SelectTrigger
+                                                class="w-full mb-2"
+                                            >
+                                                <SelectValue
+                                                    placeholder="Select Copy For Watermark"
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem
+                                                    v-for="item in watermarks"
+                                                    :key="item.id"
+                                                    :value="item.id"
+                                                    class="w-full"
+                                                >
+                                                    {{ item.name }}
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <Button
                                         variant="secondary"
                                         class="cursor-pointer"
@@ -226,6 +244,14 @@
         DialogHeader,
         DialogTitle,
     } from "@/components/ui/dialog"
+    
+    import {
+        Select,
+        SelectContent,
+        SelectItem,
+        SelectTrigger,
+        SelectValue,
+    } from '@/components/ui/select';
     import { EyeIcon, FileDown } from 'lucide-vue-next'
     import { ref } from 'vue'
 
@@ -243,6 +269,10 @@
 
     defineProps({
         messages: {
+            type: Object,
+            default: () => {}
+        },
+        watermarks: {
             type: Object,
             default: () => {}
         },
