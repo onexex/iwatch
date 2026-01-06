@@ -20,10 +20,27 @@ class IncidentWatermarkController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
-
         IncidentWatermark::create([
-            
+            'name' => $request->name,
+            'type' => $request->type,
+            'color' => $request->color,
+            'description' => $request->description,
         ]);
+
+        return Redirect()->back();
+    }
+    
+    
+    public function update(IncidentWatermark $incidentwatermark, Request $request)
+    {
+        if ($incidentwatermark) {
+            $incidentwatermark->update([
+                'name' => $request->name,
+                'type' => $request->type,
+                'color' => $request->color,
+                'description' => $request->description,
+            ]);
+        }
+        return Redirect()->back();
     }
 }

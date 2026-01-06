@@ -37,7 +37,7 @@
                                         >Description</TableHead
                                     >
                                     <TableHead
-                                        >Acion</TableHead
+                                        >Action</TableHead
                                     >
                                 </TableRow>
                             </TableHeader>
@@ -59,6 +59,27 @@
                                                 class="truncate font-semibold tracking-tight text-foreground"
                                             >
                                                 {{ incidentwatermark.name }}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="truncate font-semibold tracking-tight text-foreground"
+                                            >
+                                                {{ incidentwatermark.type }}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-6 h-6 rounded border"
+                                                :style="{ backgroundColor: incidentwatermark.color }"
+                                            ></div>
+
+                                            <span class="truncate font-semibold tracking-tight text-foreground">
+                                                {{ incidentwatermark.color }}
                                             </span>
                                         </div>
                                     </TableCell>
