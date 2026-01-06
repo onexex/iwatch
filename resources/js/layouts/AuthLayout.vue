@@ -39,7 +39,7 @@ import iWatchLogo from '/resources/images/logo.png';
                             i<span class="text-primary">Watch</span>
                         </h1>
                         <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
-                            Crime Reporting System
+                            Intelligence Estimate
                         </p>
                     </div>
                 </Link>
@@ -50,7 +50,7 @@ import iWatchLogo from '/resources/images/logo.png';
             </div>
             
             <p class="text-center text-xs text-muted-foreground/60">
-                &copy; 2026 iWatch Intelligence Unit
+                &copy; 2026 iWatch Intelligence Estimate. All rights reserved.
             </p>
         </div>
     </div>

@@ -40,7 +40,7 @@ const mainNavItems: NavItem[] = [
         icon: MessageSquare,
     },
      {
-        title: 'Verified Incident Tracker',
+        title: 'Verified Information Tracker',
         href: '/mapping',
         icon: MapPinMinus,
     },

@@ -18,7 +18,7 @@ import iWatchLogo from '/resources/images/logo.png';
             >iWatch</span
         >
         <span class="truncate text-[10px] text-muted-foreground font-medium uppercase tracking-tight"
-            >Crime Reporting</span
+            >Intelligence Estimate </span
         >
     </div>
 </template>
