@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Classification;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreIncidentRequest;
 use Illuminate\Support\Facades\Auth;
 
 class SmsController extends Controller
@@ -79,7 +80,7 @@ class SmsController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreIncidentRequest $request)
     {
         $classification = Classification::where('id', $request->classificationId)
             ->first();
@@ -93,7 +94,7 @@ class SmsController extends Controller
             'file_number' => $request->file_number,
             'reference' => $request->reference,
             'subject' => $request->subject,
-            'date_of_report' => $request->dateOfReport,
+            'date_of_report' => $request->date_of_report,
             'reporter' => $request->reporter,
             'designation' => $request->designation,
             'evaluation' => $request->evaluation,
