@@ -44,6 +44,23 @@ class SmsController extends Controller
             ->distinct('subject')
             ->pluck('subject');
 
+        $fromDb = Incident::whereNotNull('manner_acquired')
+            ->pluck('manner_acquired')
+            ->toArray();
+
+        $defaults = [
+            'Phone Call',
+            'Contact Meeting',
+            'Elicitation',
+            'Casing and Surveillance',
+        ];
+
+        $methodofcollections = collect($fromDb)
+            ->merge($defaults)
+            ->unique()
+            ->values()
+            ->toArray();
+
         $year = date('Y');
         $incident = Incident::whereYear('created_at', $year)->count();
         $num = str_pad($incident + 1, 3, '0', STR_PAD_LEFT);
@@ -58,6 +75,7 @@ class SmsController extends Controller
             'classifications' => $classifications,
             'filenumber' => $filenumber,
             'subjects' => $subjects,
+            'methodofcollections' => $methodofcollections,
         ]);
     }
 

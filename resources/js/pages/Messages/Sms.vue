@@ -74,6 +74,7 @@ const props=defineProps<{
     }[];
     filenumber: string,
     subjects: string[];
+    methodofcollections: string[];
 }>();
 
 const form = useForm({
@@ -511,12 +512,7 @@ const filteredMessages = computed(() => {
                                     <SubjectCombobox
                                         v-model="form.mannerAcquired"
                                         placeholder="Method of collection"
-                                        :subjects="[
-                                            'Phone Call',
-                                            'Contact Meeting',
-                                            'Elicitation',
-                                            'Casing and Surveillance',
-                                        ]"
+                                        :subjects="methodofcollections"
                                     />
                                 </div>
                                 <div
