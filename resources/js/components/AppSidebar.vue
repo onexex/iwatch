@@ -66,7 +66,7 @@ const footerNavItems: NavItem[] = [
     },
      {
         title: 'Users Management',
-        href: '',
+        href: '/users',
         icon: UserRoundCog,
     },
 ];

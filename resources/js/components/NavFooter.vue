@@ -6,6 +6,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { Link } from '@inertiajs/vue3'; // Import the Link component
 import { toUrl } from '@/lib/utils';
 import { type NavItem } from '@/types';
 
@@ -28,14 +29,10 @@ defineProps<Props>();
                         class="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
                         as-child
                     >
-                        <a
-                            :href="toUrl(item.href)"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <Link :href="toUrl(item.href)">
                             <component :is="item.icon" />
                             <span>{{ item.title }}</span>
-                        </a>
+                        </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>

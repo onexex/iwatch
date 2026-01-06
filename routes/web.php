@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SMS\SmsController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\ClassificationController;
+use App\Http\Controllers\UserManagementController;
 
 Route::get('/', function () {
     return Inertia::render('auth/Login', [
@@ -34,6 +35,14 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::resource('classifications', ClassificationController::class);
     Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');
     Route::get('/download-incident/{incident}', [IncidentController::class, 'download'])->name('incident.download');
+});
+
+Route::middleware('auth', 'verified')->group(function () {
+    
+    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::post('/users/store', [UserManagementController::class, 'store'])->name('users.store');
+    Route::put('/users/update/{user}', [UserManagementController::class, 'update'])->name('users.update');
+    Route::delete('/users/delete/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
 });
 
 require __DIR__.'/settings.php';
