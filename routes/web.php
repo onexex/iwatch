@@ -8,6 +8,7 @@ use App\Http\Controllers\SMS\SmsController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClassificationController;
+use App\Http\Controllers\IncidentWatermarkController;
 use App\Http\Controllers\UserManagementController;
 
 Route::get('/', function () {
@@ -39,6 +40,8 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::resource('classifications', ClassificationController::class);
     Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');
     Route::get('/download-incident/{incident}', [IncidentController::class, 'download'])->name('incident.download');
+
+    Route::resource('incidentwatermarks', IncidentWatermarkController::class);
 });
 
 Route::middleware('auth', 'verified')->group(function () {

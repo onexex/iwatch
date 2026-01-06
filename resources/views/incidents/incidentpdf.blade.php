@@ -25,7 +25,6 @@
             text-align: center;
             transform: rotate(-35deg);
             font-size: 75pt;
-            color: rgba(199, 8, 8, 0.15);
             font-weight: bolder;
             text-transform: uppercase;
         }
@@ -70,11 +69,27 @@
         }
 
         td p { margin: 0; }
+        
+        .attachments {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .attachment-img {
+            width: 150px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="watermark-wrapper">
-        <div class="watermark">
+        <div 
+            class="watermark"
+            style="color: {{ $bgColor }}"
+        >
             COPY FOR {{ $copyFor ?? '' }}
         </div>
     </div>
@@ -166,7 +181,17 @@
             <tr>
                 <td class="num">14</td>
                 <td class="label">ATTACHMENT</td>
-                <td class="value">{{ $incident->attachment ?? 'N/A' }}</td>
+                <td class="value">
+                    <div class="attachments">
+                        @foreach ($attachments as $attachment)
+                            <img     
+                                src="{{ public_path('storage/incident/attachments/' . $attachment->file_name) }}" 
+                                alt="Attachment"
+                                class="attachment-img"
+                            >
+                        @endforeach
+                    </div>
+                </td>
             </tr>
         </tbody>
     </table>
