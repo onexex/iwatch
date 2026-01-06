@@ -44,11 +44,7 @@ const mainNavItems: NavItem[] = [
         href: '/mapping',
         icon: MapPinMinus,
     },
-    {
-        title: 'Classifications',
-        href: '/classifications',
-        icon: ListIcon,
-    },
+   
 
     
 ];
@@ -59,15 +55,16 @@ const footerNavItems: NavItem[] = [
         href: '',
         icon: BookOpen,
     },
-    {
-        title: 'Data Graphs',
-        href: '',
-        icon: ChartNoAxesCombined,
-    },
+    
      {
         title: 'Users Management',
         href: '/users',
         icon: UserRoundCog,
+    },
+     {
+        title: 'Classifications',
+        href: '/classifications',
+        icon: ListIcon,
     },
 ];
 </script>
