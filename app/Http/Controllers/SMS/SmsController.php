@@ -130,7 +130,7 @@ class SmsController extends Controller
         SmsMessage::where('id', $request->smsId)
             ->update(['is_read' => 1,'processed_by' => Auth::user()->id]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Successfully processed message.');
     }
 
     public function getReference(Request $request)
