@@ -339,9 +339,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <div class="flex items-center gap-2">
                                 <span class="text-2xl font-bold tracking-tight">
                                     {{
-                                        Object.values(
+                                        (Object.values(
                                             props.chartData.barangay || {},
-                                        ).reduce(
+                                        )as number[]).reduce(
                                             (a: number, b: number) => a + b,
                                             0,
                                         )
@@ -419,7 +419,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </div>
                         </div>
 
-                        <Doughnut :data="typeChart" :options="typeChartOptions" />
+                        <Doughnut :data="typeChart" :options="typeChartOptions as any" />
                     </div>
 
                     <div class="mt-6 space-y-2 border-t pt-4 border-sidebar-border/50">
