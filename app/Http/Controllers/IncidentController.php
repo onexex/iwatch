@@ -24,18 +24,50 @@ class IncidentController extends Controller
         return response()->json(Incident::with('barangay','attachments')->get());
     }
 
-    public function processedMessages()
+    public function processedMessages(Request $request)
     {
-        $incidents = Incident::orderBy('created_at', 'desc')
-            ->with('barangay', 'classification', 'classification', 'attachments')
-            ->paginate(10)
+        $query = Incident::orderBy('created_at', 'desc')
+            ->with('barangay', 'classification', 'classification', 'attachments');
+
+        if ($request->reporter) {
+            $query = $query->where('reporter', $request->reporter);
+        }
+
+        if ($request->source) {
+            $query = $query->where('source', $request->source);
+        }
+        
+        if ($request->dateFrom && $request->dateTo) {
+            $query = $query->whereBetween('date_of_report', [$request->dateFrom, $request->dateTo]);
+        }
+
+        $incidents = $query->paginate(10)
             ->withQueryString();
         
         $watermarks = IncidentWatermark::get();
+        
+        $reporters = Incident::select('reporter')
+            ->whereNotNUll('reporter')
+            ->distinct('reporter')
+            ->pluck('reporter');
+            
+        $sources = Incident::select('source')
+            ->whereNotNUll('source')
+            ->distinct('source')
+            ->pluck('source');
+
 
         return Inertia::render('Messages/ProcessedMessage', [
             'messages' => $incidents,
             'watermarks' => $watermarks,
+            'reporters' => $reporters,
+            'sources' => $sources,
+            'filter' => [
+                'reporter' => $request->reporter ?? '',
+                'source' => $request->source ?? '',
+                'dateFrom' => $request->dateFrom ?? '',
+                'dateTo' => $request->dateTo ?? '',
+            ],
         ]);
     }
 
