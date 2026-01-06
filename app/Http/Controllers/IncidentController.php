@@ -46,6 +46,7 @@ class IncidentController extends Controller
             'incident' => $incident,
             'copyFor' => $watermark->name ?? '',
             'bgColor' => $watermark->color ?? '#c7080826',
+            'attachments' => $incident->attachments,
         ]);
 
         return $pdf->stream("incident-{$incident->id}.pdf");
