@@ -6,6 +6,7 @@ use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SMS\SmsController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClassificationController;
 use App\Http\Controllers\UserManagementController;
 
@@ -18,6 +19,9 @@ Route::get('/', function () {
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('dashboard', [DashboardController::class, 'index']);
+
 
 Route::get('mapping', function () {
     return Inertia::render('IncidentMap');
