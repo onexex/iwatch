@@ -90,7 +90,7 @@
             class="watermark"
             style="color: {{ $bgColor }}"
         >
-            COPY FOR {{ $copyFor ?? '' }}
+            {{-- COPY FOR {{ $copyFor ?? '' }} --}}
         </div>
     </div>
 
