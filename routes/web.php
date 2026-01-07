@@ -23,11 +23,9 @@ Route::get('/', function () {
 
 Route::get('dashboard', [DashboardController::class, 'index']);
 
-
 Route::get('mapping', function () {
     return Inertia::render('IncidentMap');
 })->middleware(['auth', 'verified'])->name('mapping');
-
 
 Route::get('/mapping_incidents', [IncidentController::class, 'index']);
  

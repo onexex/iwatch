@@ -14,8 +14,8 @@ import { Form, Head } from '@inertiajs/vue3';
 
 defineProps<{
     status?: string;
-    canResetPassword: boolean;
-    canRegister: boolean;
+    canResetPassword?: boolean;
+    canRegister?: boolean;
 }>();
 </script>
 

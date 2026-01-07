@@ -106,13 +106,13 @@ const deleteUser = (id) => {
         if (result.isConfirmed) {
             // Trigger Inertia delete
             router.delete(`/users/delete/${id}`, {
-                onSuccess: () => {
-                    Swal.fire(
-                        'Deleted!',
-                        'The user has been removed.',
-                        'success'
-                    );
-                },
+                // onSuccess: () => {
+                //     Swal.fire(
+                //         'Deleted!',
+                //         'The user has been removed.',
+                //         'success'
+                //     );
+                // },
                 onError: () => {
                     Swal.fire(
                         'Error!',
