@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { Bar, Doughnut, Line, Pie } from 'vue-chartjs'; // Add Line here
 import { computed } from 'vue';
 // import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -28,9 +29,59 @@ import {
     ShieldAlert,
 } from 'lucide-vue-next';
 import { ref } from 'vue';
-import { Bar, Doughnut, Line, Pie } from 'vue-chartjs'; // Add Line here
 
 import ChartDataLabels from 'chartjs-plugin-datalabels'; //
+// Add these to your imports at the top
+import { router } from '@inertiajs/vue3';
+import { reactive } from 'vue';
+import { Calendar, Tag, FilterX, User2, Share2 } from 'lucide-vue-next';
+import { FileDown } from 'lucide-vue-next'; // Add this icon
+// // Update your props definition to include filters and classifications
+// const props = defineProps<{
+//     stats: any;
+//     chartData: any;
+//     recent: any[];
+//     filters: any;          // Add this
+//     classifications: any;  // Add this
+// }>();
+
+const props = defineProps<{
+    stats: any;
+    chartData: any;
+    recent: any[];
+    filters: { start_date?: string; end_date?: string; classification?: string }; // Add this
+    classifications: string[]; // Add this
+}>();
+const downloadPDF = () => {
+    const params = new URLSearchParams(form).toString();
+    window.location.href = `/dashboard/export?${params}`;
+};
+
+const barangayChartRef = ref(null);
+const typeChartRef = ref(null);
+// Initialize the filter form
+const form = reactive({
+    start_date: props.filters.start_date || '',
+    end_date: props.filters.end_date || '',
+    classification: props.filters.classification || '',
+});
+
+// Function to send filters to the controller
+const applyFilters = () => {
+    router.get('/dashboard', form, { 
+        preserveState: true, 
+        preserveScroll: true,
+        replace: true 
+    });
+};
+
+// Reset function
+const resetFilters = () => {
+    form.start_date = '';
+    form.end_date = '';
+    form.classification = '';
+    applyFilters();
+};
 
 const chartView = ref<'bar' | 'line'>('bar');
 const trendValue = computed(() => props.stats.trend_value || 0);
@@ -88,11 +139,7 @@ ChartJS.register(
     ChartDataLabels,
     leaderLinePlugin,
 );
-const props = defineProps<{
-    stats: any;
-    chartData: any;
-    recent: any[];
-}>();
+
 
 // Chart Setup
 const barangayChart = computed(() => {
@@ -150,9 +197,9 @@ const typeChart = computed(() => {
 const typeChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '45%', // Adjust this to make the doughnut thicker or thinner
+    cutout: '60%',  
     layout: {
-        padding: 30 // Space for labels and lines
+        padding: 40 // Increased slightly to prevent text clipping
     },
     plugins: {
         legend: { display: false },
@@ -162,20 +209,23 @@ const typeChartOptions = {
             color: (context: any) => context.dataset.backgroundColor[context.dataIndex],
             anchor: 'end',
             align: 'end',
-            offset: 25, // Distance from the end of the line
+            offset: 20,  
             font: {
-                weight: '400',
+                weight: '400', // Made bolder for better readability
                 size: 12
             },
             formatter: (value: number, context: any) => {
                 const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(0) : 0;
                 const label = context.chart.data.labels[context.dataIndex];
-                return `${percentage}%\n${label} `;
+                
+                // Returns: 25% (12)
+                //          Classification Name
+                return `${percentage}% (${value})\n${label}`; 
             },
             textAlign: 'center'
         },
-        // customPiePlugin: { display: true } // Enable lines
+        customPiePlugin: { display: true } 
     }
 };
 
@@ -243,11 +293,11 @@ const mannerOptions = {
     responsive: true,
     maintainAspectRatio: false,
     layout: {
-        padding: 20, // Increased padding to make room for lines and labels
+        padding: 20,  
     },
     plugins: {
         legend: { display: false },
-        // datalabels plugin configuration
+         
         datalabels: {
             color: (context: any) =>
                 context.dataset.backgroundColor[context.dataIndex],
@@ -275,6 +325,116 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/dashboard',
     },
 ];
+
+const reporterChart = computed(() => {
+    const labels = Object.keys(props.chartData.reporter || {});
+    return {
+        labels: labels,
+        datasets: [{
+            label: 'Incidents Reported',
+            data: Object.values(props.chartData.reporter || {}) as number[],
+            backgroundColor: '#6366f1', // Indigo
+            borderRadius: 6,
+            barThickness: 20,
+        }]
+    };
+});
+
+const reporterOptions = {
+    indexAxis: 'y', 
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        datalabels: {
+            anchor: 'end',
+            align: 'right',
+            color: '#6366f1',
+            font: { weight: '900', size: 11 },
+            formatter: (value: number) => Math.floor(value)
+        }
+    },
+    scales: {
+        x: { 
+            display: true, 
+            grid: { display: false },
+            beginAtZero: true,
+            ticks: { 
+                stepSize: 1, 
+                precision: 0,
+                font: { weight: '700', size: 10 },
+                color: '#64748b',
+                callback: (value: any) => (value % 1 === 0 ? value : null)
+            }
+        },
+        y: { 
+            display: true, 
+            grid: { display: false },
+            ticks: { 
+                font: { weight: '700', size: 10 },
+                color: '#64748b' 
+            } 
+        }
+    }
+};
+
+const sourceChart = computed(() => {
+    const labels = Object.keys(props.chartData.sources || {});
+    return {
+        labels: labels,
+        datasets: [{
+            label: 'Incidents by Source',
+            data: Object.values(props.chartData.sources || {}) as number[],
+            backgroundColor: '#10b981', 
+            borderRadius: 4,
+            barThickness: 20, // Adjusted for a cleaner horizontal-look bar
+        }],
+    };
+});
+
+ const sourceOptions = {
+    indexAxis: 'y', 
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        datalabels: {
+            anchor: 'end',
+            align: 'right',
+            color: '#10b981',
+            font: { weight: '900', size: 11 },
+            // Ensure datalabels are also whole numbers
+            formatter: (value: number) => Math.floor(value)
+        }
+    },
+    scales: {
+        x: { 
+            display: true, 
+            grid: { display: false },
+            beginAtZero: true, // Start at 0
+            ticks: { 
+                stepSize: 1, // Forces increments of 1
+                precision: 0, // Removes decimals
+                font: { weight: '700', size: 10 },
+                color: '#64748b',
+                // Explicitly return only whole numbers
+                callback: function(value: any) {
+                    if (value % 1 === 0) {
+                        return value;
+                    }
+                }
+            }
+        },
+        y: { 
+            display: true, 
+            grid: { display: false },
+            ticks: { 
+                font: { weight: '700', size: 10 },
+                color: '#64748b' 
+            } 
+        }
+    }
+};
 </script>
 
 <template>
@@ -282,6 +442,51 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-sidebar-border/70 bg-card p-4 shadow-sm">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="ml-1 text-[9px] font-black uppercase tracking-widest text-muted-foreground">Start Date</span>
+                        <div class="relative">
+                            <Calendar class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-indigo-500" />
+                            <input type="date" v-model="form.start_date" @change="applyFilters"
+                                class="rounded-xl border border-sidebar-border bg-muted/20 py-1.5 pl-9 pr-3 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <span class="ml-1 text-[9px] font-black uppercase tracking-widest text-muted-foreground">End Date</span>
+                        <div class="relative">
+                            <Calendar class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-indigo-500" />
+                            <input type="date" v-model="form.end_date" @change="applyFilters"
+                                class="rounded-xl border border-sidebar-border bg-muted/20 py-1.5 pl-9 pr-3 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1 min-w-[200px]">
+                        <span class="ml-1 text-[9px] font-black uppercase tracking-widest text-muted-foreground">Classification</span>
+                        <div class="relative">
+                            <Tag class="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-indigo-500" />
+                            <select v-model="form.classification" @change="applyFilters"
+                                class="w-full appearance-none rounded-xl border border-sidebar-border bg-muted/20 py-1.5 pl-9 pr-8 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">All Types</option>
+                                <option v-for="c in classifications" :key="c" :value="c">{{ c }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="resetFilters" 
+                    class="flex items-center gap-2 rounded-xl border border-transparent px-4 py-2 text-[10px] font-black tracking-widest text-rose-500 transition-all hover:bg-rose-500/10 hover:border-rose-500/20">
+                    <FilterX class="h-4 w-4" />
+                    RESET
+                </button>
+
+                <button @click="downloadPDF" 
+                    class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-[10px] font-black tracking-widest text-white shadow-lg shadow-indigo-500/20 transition-all hover:bg-indigo-700 active:scale-95">
+                    <FileDown class="h-4 w-4" />
+                    EXPORT PDF
+                </button>
+            </div>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <div
                     v-for="(val, label) in {
@@ -404,7 +609,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </div>
                 </div>
 
-               <div class="rounded-xl border border-sidebar-border/70 bg-card p-6 shadow-sm">
+                <div class="rounded-xl border border-sidebar-border/70 bg-card p-6 shadow-sm">
                     <h3 class="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-6">
                         Classification Distribution
                     </h3>
@@ -421,8 +626,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                         <Doughnut :data="typeChart" :options="typeChartOptions as any" />
                     </div>
-
-                    <div class="mt-6 space-y-2 border-t pt-4 border-sidebar-border/50">
+                    <div class="mt-4 text-center text-[10px] font-medium text-muted-foreground">
+                        <!-- * Based on Incident Types -->
+                    </div>
+                    <!-- <div class="mt-6 space-y-2 border-t pt-4 border-sidebar-border/50">
                         <div v-for="(val, key) in (chartData.types || {})" :key="key" class="flex justify-between text-[10px] items-center">
                             <span class="text-muted-foreground flex items-center gap-2 font-bold uppercase tracking-tight">
                                 <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: getIncidentColor(String(key)) }"></span>
@@ -430,7 +637,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </span>
                             <span class="font-black">{{ val }}</span>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div
@@ -451,7 +658,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </div>
                     </div>
 
-                    <div class="relative h-[320px] w-full">
+                    <div class="relative h-80 w-full">
                         <div
                             class="pointer-events-none absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
                         >
@@ -474,12 +681,56 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </div>
                         </div>
 
-                        <Pie :data="mannerChart" :options="mannerOptions" />
+                        <Pie :data="mannerChart"  :options="mannerOptions as any" />
                     </div>
                 </div>
 
-              <div
-                    class="rounded-xl border border-sidebar-border/70 bg-card p-6 shadow-sm lg:col-span-2 dark:border-sidebar-border"
+                <div class="h-full flex flex-col overflow-hidden rounded-xl border border-sidebar-border/70 bg-card dark:border-sidebar-border shadow-sm">
+                    <div class="p-6 pb-2 flex items-center gap-2">
+                        <div class="p-1 rounded bg-indigo-500/10">
+                            <User2 class="w-3.5 h-3.5 text-indigo-500" />
+                        </div>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            Top Reporters
+                        </h3>
+                    </div>
+                    
+                    <div class="flex-1 p-6 min-h-[300px]">
+                        <Bar :data="reporterChart" :options="reporterOptions as any" />
+                    </div>
+
+                    <!-- <div class="mt-auto p-4 bg-muted/20 border-t border-sidebar-border/50">
+                             <div class="flex items-center justify-between text-[9px] font-bold uppercase text-muted-foreground tracking-tighter"> -->
+                            <!-- <span class="text-[9px] text-muted-foreground uppercase font-bold">Active Staff</span> -->
+                            <!-- <span class=" ">{{ Object.keys(props.chartData.reporter || {}).length }} Reporters</span>
+                        </div>
+                    </div> -->
+                </div>
+
+                <div class="h-full flex flex-col overflow-hidden rounded-xl border border-sidebar-border/70 bg-card shadow-sm">
+                    <div class="p-6 pb-2 flex items-center gap-2">
+                        <div class="p-1 rounded bg-emerald-500/10">
+                            <Share2 class="w-3.5 h-3.5 text-emerald-500" />
+                        </div>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                             Sources
+                        </h3>
+                    </div>
+                    
+                    <div class="flex-1 p-6 min-h-[250px]">
+                        <Bar :data="sourceChart" :options="sourceOptions as any" />
+                    </div>
+
+                    <!-- <div class="p-4 bg-muted/5 border-t border-sidebar-border/50">
+                        <div class="flex items-center justify-between text-[9px] font-bold uppercase text-muted-foreground tracking-tighter"> -->
+                            <!-- <span>Data Distribution</span> -->
+                            <!-- <span>{{ Object.keys(props.chartData.sources || {}).length }}  Sources </span>
+                        </div>
+                    </div> -->
+                </div>
+
+                <div
+                    class="rounded-xl border border-sidebar-border/70 bg-card p-6 shadow-sm lg:col-span-3 dark:border-sidebar-border"
                 >
                     <div
                         class="flex items-center justify-between border-b border-sidebar-border/70 p-5"

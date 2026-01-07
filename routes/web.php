@@ -48,6 +48,8 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::post('/users/store', [UserManagementController::class, 'store'])->name('users.store');
     Route::put('/users/update/{user}', [UserManagementController::class, 'update'])->name('users.update');
     Route::delete('/users/delete/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
 });
 
 require __DIR__.'/settings.php';

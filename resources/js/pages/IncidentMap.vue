@@ -102,7 +102,7 @@
                 </div>
 
                 <div v-if="showFullList"
-                    class="absolute inset-y-0 right-0 z-[1001] w-80 animate-in border-l bg-background/95 p-4 shadow-xl backdrop-blur-md slide-in-from-right">
+                    class="absolute inset-y-0 right-0 z-1001 w-80 animate-in border-l bg-background/95 p-4 shadow-xl backdrop-blur-md slide-in-from-right">
                     <div class="mb-2 flex items-center justify-between">
                         <h3 class="text-sm font-bold">Search Incidents</h3>
                         <button @click="showFullList = false"
@@ -310,8 +310,6 @@ interface Incident {
     barangay: BarangayProperties;
     attachments: { id: number; url: string }[];
 }
-
-
 
 export default defineComponent({
     name: 'MapView',
