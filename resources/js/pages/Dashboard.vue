@@ -44,13 +44,11 @@ const props = defineProps<{
     filters: { start_date?: string; end_date?: string; classification?: string };  
     classifications: string[];  
 }>();
+
 const downloadPDF = () => {
     const params = new URLSearchParams(form).toString();
     window.location.href = `/dashboard/export?${params}`;
 };
-
-const barangayChartRef = ref(null);
-const typeChartRef = ref(null);
 
 // Initialize the filter form
 const form = reactive({
@@ -132,7 +130,6 @@ ChartJS.register(
     ChartDataLabels,
     leaderLinePlugin,
 );
-
 
 // Chart Setup
 const barangayChart = computed(() => {

@@ -120,6 +120,7 @@ class DashboardController extends Controller
     }
 
     $data = [
+        
         'title' => 'Incident Report',
         'date' => now()->format('m/d/Y'),
         'filters' => $request->all(),

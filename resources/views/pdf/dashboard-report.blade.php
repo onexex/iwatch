@@ -21,6 +21,10 @@
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; }
         .badge-analyzed { background: #dcfce7; color: #15803d; }
         .badge-pending { background: #fef3c7; color: #92400e; }
+        .chart-grid { width: 100%; margin-top: 20px; }
+    .chart-box { width: 48%; display: inline-block; vertical-align: top; margin-bottom: 20px; border: 1px solid #f1f5f9; padding: 10px; border-radius: 8px; }
+    .chart-title { font-size: 9px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 8px; text-align: center; }
+    .full-width { width: 100%; display: block; }
     </style>
 </head>
 <body>
