@@ -36,14 +36,7 @@ import { router } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import { Calendar, Tag, FilterX, User2, Share2 } from 'lucide-vue-next';
 import { FileDown } from 'lucide-vue-next'; // Add this icon
-// // Update your props definition to include filters and classifications
-// const props = defineProps<{
-//     stats: any;
-//     chartData: any;
-//     recent: any[];
-//     filters: any;          // Add this
-//     classifications: any;  // Add this
-// }>();
+
 
 const props = defineProps<{
     stats: any;
