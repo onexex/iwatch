@@ -39,7 +39,6 @@
     import { Textarea } from '@/components/ui/textarea';
     import { reactive, computed, ref, onBeforeUnmount } from 'vue';
     import axios from 'axios';
-import { reference } from '@/routes/sms';
 
    
 const props=defineProps<{
