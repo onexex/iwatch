@@ -75,6 +75,8 @@ const props=defineProps<{
     filenumber: string,
     subjects: string[];
     methodofcollections: string[];
+    reporters: string[];
+    sources: string[];
 }>();
 
 const form = useForm({
@@ -470,7 +472,7 @@ const filteredMessages = computed(() => {
                                     <SubjectCombobox
                                         v-model="form.subject"
                                         :subjects="subjects"
-                                        placeholder="Input ot Select Subject"
+                                        placeholder="Input or Select Subject"
                                         :error="form.errors.subject"
                                     />
                                 </div>
@@ -482,24 +484,41 @@ const filteredMessages = computed(() => {
                                     :required="true"
                                     :error="form.errors.date_of_report"
                                 />
-                                <Input
-                                    v-model="form.reporter"
-                                    label="Reporter"
-                                    placeholder="Name of officer"
-                                    :error="form.errors.reporter"
-                                />
+                                <div class="w-full">
+                                    <label
+                                        class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        for="label"
+                                    >
+                                        Reporter
+                                    </label>
+                                    <SubjectCombobox
+                                        v-model="form.reporter"
+                                        :subjects="reporters"
+                                        placeholder="Input or Select Reporter"
+                                        :error="form.errors.reporter"
+                                    />
+                                </div>
                                 <Input
                                     v-model="form.designation"
                                     label="Designation"
                                     placeholder="Rank/Position"
                                     :error="form.errors.designation"
                                 />
-                                <Input
-                                    v-model="form.source"
-                                    label="Source"
-                                    placeholder="Intelligence Source"
-                                    :error="form.errors.source"
-                                />
+                                
+                                <div class="w-full">
+                                    <label
+                                        class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        for="label"
+                                    >
+                                        Source
+                                    </label>
+                                    <SubjectCombobox
+                                        v-model="form.source"
+                                        :subjects="sources"
+                                        placeholder="Input or Select Source"
+                                        :error="form.errors.source"
+                                    />
+                                </div>
 
                                 <Input
                                     v-model="form.dateAcquired"

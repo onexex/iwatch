@@ -45,6 +45,17 @@ class SmsController extends Controller
             ->distinct('subject')
             ->pluck('subject');
 
+            
+        $reporters = Incident::select('reporter')
+            ->whereNotNUll('reporter')
+            ->distinct('reporter')
+            ->pluck('reporter');
+
+        $sources = Incident::select('source')
+            ->whereNotNUll('source')
+            ->distinct('source')
+            ->pluck('source');
+
         $fromDb = Incident::whereNotNull('manner_acquired')
             ->pluck('manner_acquired')
             ->toArray();
@@ -77,6 +88,8 @@ class SmsController extends Controller
             'filenumber' => $filenumber,
             'subjects' => $subjects,
             'methodofcollections' => $methodofcollections,
+            'reporters' => $reporters,
+            'sources' => $sources,
         ]);
     }
 
