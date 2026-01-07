@@ -79,7 +79,7 @@ class DashboardController extends Controller
             ->pluck('total', 'source');
 
         // 9. Recent activity (Filtered)
-        $recent = (clone $query)->with(['barangay', 'classification'])
+        $recent = (clone $query)->with(['barangay', 'classification', 'attachments'])
             ->latest()
             ->limit(20)
             ->get();

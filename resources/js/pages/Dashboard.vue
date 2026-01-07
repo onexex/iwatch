@@ -4,7 +4,7 @@ import { Bar, Doughnut, Line, Pie } from 'vue-chartjs';
 import { computed } from 'vue';
 // import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import {
     ArcElement,
     BarElement,
@@ -29,6 +29,13 @@ import {
     ShieldAlert,
 } from 'lucide-vue-next';
 import { ref } from 'vue';
+
+    import {
+        Dialog,
+        DialogContent,
+        DialogHeader,
+        DialogTitle,
+    } from "@/components/ui/dialog"
 
 import ChartDataLabels from 'chartjs-plugin-datalabels'; 
 import { router } from '@inertiajs/vue3';
@@ -77,6 +84,39 @@ const resetFilters = () => {
 const chartView = ref<'bar' | 'line'>('bar');
 const trendValue = computed(() => props.stats.trend_value || 0);
 const isTrendUp = computed(() => trendValue.value > 0);
+    
+interface IncidentAttachment {
+        id: number
+        url: string
+    }    
+
+    const incidentattachments = ref<IncidentAttachment[]>([])
+    const formDetail = useForm({
+        dialogueOpen: false,
+        smsId: 0,
+        smsinformation: '',
+        receivedAt: '',
+        file_number: '',
+        reference: '',
+        subject: '',
+        date_of_report: '',
+        reporter: '',
+        designation: '',
+        evaluation: '',
+        source: '',
+        dateAcquired: '',
+        mannerAcquired: '',
+        informationProper: '',
+        analysis: '',
+        actions: '',
+        attachments: [] as File[],
+        classification: '',
+        selectedRegion: '',
+        selectedProvince: '',
+        selectedCity: '',
+        selectedBarangay: '',
+    });
+
 
 const leaderLinePlugin = {
     id: 'leaderLinePlugin',
@@ -425,6 +465,29 @@ const sourceChart = computed(() => {
         }
     }
 };
+
+    function viewDetails(item: any) {
+        formDetail.dialogueOpen = true
+        formDetail.file_number = item.file_number
+        formDetail.reference = item.reference
+        formDetail.reporter = item.reporter
+        formDetail.designation = item.designation
+        formDetail.source = item.source
+        formDetail.subject = item.subject
+        formDetail.evaluation = item.evaluation
+        formDetail.dateAcquired = item.date_acquired
+        formDetail.date_of_report = item.date_of_report
+        formDetail.mannerAcquired = item.manner_acquired
+        formDetail.classification = item.classification.name
+        formDetail.informationProper = item.information_proper
+        formDetail.analysis = item.analysis
+        formDetail.actions = item.actions
+        formDetail.selectedBarangay = item.barangay.barangay
+        formDetail.selectedCity = item.barangay.city_municipality
+        formDetail.selectedProvince = item.barangay.province
+        incidentattachments.value = item.attachments.flat()
+    }
+
 </script>
 
 <template>
@@ -780,6 +843,7 @@ const sourceChart = computed(() => {
                                     <td class="px-6 py-4 text-right">
                                         <button
                                             class="inline-flex rounded bg-muted p-1 transition-colors group-hover:bg-indigo-600 group-hover:text-white"
+                                            @click="viewDetails(item)"
                                         >
                                             <ChevronRight class="h-4 w-4" />
                                         </button>
@@ -791,5 +855,118 @@ const sourceChart = computed(() => {
                 </div>
             </div>
         </div>
+        
+        <Dialog v-model:open="formDetail.dialogueOpen">
+            <DialogContent class="max-w-1/2 max-h-[90vh] flex flex-col p-0 overflow-hidden ">
+                <DialogHeader class="p-6 pb-2">
+                    <DialogTitle class="text-xl font-semibold tracking-tight">Incident Details</DialogTitle>    
+                </DialogHeader>
+
+                <div class="flex-1 overflow-y-auto px-6 py-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">File Number</span>
+                            <p class="font-medium">{{ formDetail.file_number }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Reference</span>
+                            <p class="font-medium">{{ formDetail.reference }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subject</span>
+                            <p class="font-medium">{{ formDetail.subject }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Date of Report</span>
+                            <p class="font-medium">{{ formDetail.date_of_report }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Reporter</span>
+                            <p class="font-medium">{{ formDetail.reporter }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Designation/Unit Assignment</span>
+                            <p class="font-medium">{{ formDetail.designation }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Source</span>
+                            <p class="font-medium">{{ formDetail.source }} </p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Date Acquired</span>
+                            <p class="font-medium">{{ formDetail.dateAcquired }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Manner Acquired</span>
+                            <p class="font-medium">({{ formDetail.mannerAcquired }})</p>
+                        </div>
+                    </div>
+
+                    <Separator class="my-6" />
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm mt-2">
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Classification </span>
+                            <p class="font-medium">{{ formDetail.classification }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Evaluation </span>
+                            <p class="font-medium">{{ formDetail.evaluation }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Address </span>
+                            <p class="font-medium">{{ formDetail.selectedBarangay }} , {{ formDetail.selectedCity }} {{ formDetail.selectedProvince }}</p>
+
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+
+                        <div class="bg-muted/50 rounded-lg p-4 border border-border">
+                            <h4 class="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-2">Information Proper</h4>
+                            <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ formDetail.informationProper }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-muted-foreground">Comments & Analysis</h4>
+                        <p class="text-sm text-foreground/80 italic border-l-2 border-primary/30 pl-3">
+                        {{ formDetail.analysis }}
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-muted-foreground">Actions Taken</h4>
+                        <p class="text-sm font-medium">{{ formDetail.actions }}</p>
+                    </div>
+                    </div>
+
+                    <div class="mt-8">
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Attachments</h4>
+                    <div v-if="incidentattachments.length" class="flex flex-wrap gap-3">
+                        <div
+                            v-for="file in incidentattachments"
+                            :key="file.id"
+                            class="group relative w-24 h-24 rounded-md border bg-background overflow-hidden hover:ring-2 hover:ring-primary transition-all"
+                        >
+                                <a
+                                :href="`/storage/${file.url}`"
+                                target="_blank"
+                                class="block mt-2 text-sm text-primary hover:underline text-center"
+                            >
+                                <img :src="`/storage/${file.url}`" class="w-full h-full object-cover" />
+                            </a>
+                        </div>
+                    </div>
+                    <div v-else class="text-sm text-muted-foreground italic bg-muted/30 p-4 rounded-md border border-dashed text-center">
+                        No attachments available for this file.
+                    </div>
+                    </div>
+                </div>
+
+                <DialogFooter class="p-6 bg-muted/20 border-t">
+                    <Button variant="outline" @click="formDetail.dialogueOpen = false">Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>
