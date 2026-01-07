@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Bar, Doughnut, Line, Pie } from 'vue-chartjs'; // Add Line here
+import { Bar, Doughnut, Line, Pie } from 'vue-chartjs'; 
 import { computed } from 'vue';
 // import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -30,20 +30,19 @@ import {
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-import ChartDataLabels from 'chartjs-plugin-datalabels'; //
-// Add these to your imports at the top
+import ChartDataLabels from 'chartjs-plugin-datalabels'; 
 import { router } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import { Calendar, Tag, FilterX, User2, Share2 } from 'lucide-vue-next';
-import { FileDown } from 'lucide-vue-next'; // Add this icon
+import { FileDown } from 'lucide-vue-next';  
 
 
 const props = defineProps<{
     stats: any;
     chartData: any;
     recent: any[];
-    filters: { start_date?: string; end_date?: string; classification?: string }; // Add this
-    classifications: string[]; // Add this
+    filters: { start_date?: string; end_date?: string; classification?: string };  
+    classifications: string[];  
 }>();
 const downloadPDF = () => {
     const params = new URLSearchParams(form).toString();
@@ -52,6 +51,7 @@ const downloadPDF = () => {
 
 const barangayChartRef = ref(null);
 const typeChartRef = ref(null);
+
 // Initialize the filter form
 const form = reactive({
     start_date: props.filters.start_date || '',
