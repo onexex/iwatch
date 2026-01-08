@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Incident;
-use App\Models\IncidentWatermark;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\IncidentsExport;
+use App\Models\IncidentWatermark;
+use Maatwebsite\Excel\Facades\Excel;
 
 class IncidentController extends Controller
 {
@@ -82,5 +84,18 @@ class IncidentController extends Controller
         ]);
 
         return $pdf->stream("incident-{$incident->id}.pdf");
+    }
+
+    public function export(Request $request)
+    {
+        return Excel::download(
+            new IncidentsExport(
+                $request->reporter,
+                $request->source,
+                $request->date_from,
+                $request->date_to
+            ),
+            'incidents.xlsx'
+        );
     }
 }
