@@ -399,8 +399,8 @@ export default defineComponent({
 
         const getCategoryColor = (type: string) => {
             const t = (type || '').toLowerCase().trim();
-            if (t === 'TG1(CTG)' || t === 'tg1(ctg)') return '#dc2626';
-            if (t === 'TG2(LTG)' || t === 'tg2(ltg)') return '#2563eb';
+            if (t === 'TG1(LTG)' || t === 'tg1(ltg)') return '#dc2626';
+            if (t === 'TG2(CTG)' || t === 'tg2(ctg)') return '#2563eb';
             if (t === 'TG3(CG)' || t === 'tg3(cg)') return '#000000';
             if (t === 'PAGS/PPAGS' || t === 'pags/ppags') return '#eab308';
 
@@ -416,8 +416,8 @@ export default defineComponent({
 
         const getCategoryBg = (type: string) => {
             const t = (type || '').toLowerCase().trim();
-            if (t === 'TG1(CTG)' || t === 'tg1(ctg)') return 'bg-red-600';
-            if (t === 'TG2(LTG)' || t === 'tg2(ltg)') return 'bg-blue-600';
+            if (t === 'TG1(LTG)' || t === 'tg1(ltg)') return 'bg-red-600';
+            if (t === 'TG2(CTG)' || t === 'tg2(ctg)') return 'bg-blue-600';
             if (t === 'TG3(CG)' || t === 'tg3(cg)') return 'bg-black';
             if (t === 'PAGS/PPAGS' || t === 'pags/ppags') return 'bg-yellow-500';
             if (t === 'CFO(CPPNPANDF)' || t === 'cfo(cppnpandf)') return 'bg-red-800';

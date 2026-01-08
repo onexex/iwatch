@@ -29,3 +29,12 @@ class SmsMessage extends Model
 
 
 // php artisan import:barangays --file=path/to/barangays.csv
+
+// ollama pull granite3.2:8b for ollama model pull command
+
+
+# This sets it permanently
+// [System.Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS', '*', 'User')
+
+# This sets it for the current window
+// $env:OLLAMA_ORIGINS = "*"

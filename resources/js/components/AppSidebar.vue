@@ -52,7 +52,7 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     {
         title: 'Assesment / Analytics',
-        href: '',
+        href: '/assessments',
         icon: BookOpen,
     },
     

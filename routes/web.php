@@ -4,12 +4,13 @@ use Inertia\Inertia;
 use App\Models\SmsMessage;
 use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AssesmentCtrl;
 use App\Http\Controllers\SMS\SmsController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClassificationController;
-use App\Http\Controllers\IncidentWatermarkController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\IncidentWatermarkController;
 
 Route::get('/', function () {
     return Inertia::render('auth/Login', [
@@ -50,6 +51,10 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::delete('/users/delete/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('dashboard.export');
+    Route::get('/assessments', [AssesmentCtrl::class, 'index'])->name('assessments.index');
+
+
+    
 });
 
 require __DIR__.'/settings.php';
