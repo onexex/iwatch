@@ -44,6 +44,7 @@ import { Calendar, Tag, FilterX, User2, Share2 } from 'lucide-vue-next';
 import { FileDown } from 'lucide-vue-next';  
 
 import RiskModal from './RiskModal.vue'; // We will create this below
+import axios from 'axios';
 
 
 const props = defineProps<{
@@ -85,9 +86,10 @@ const resetFilters = () => {
     applyFilters();
 };
 
-const chartView = ref<'bar' | 'line'>('bar');
-const trendValue = computed(() => props.stats.trend_value || 0);
-const isTrendUp = computed(() => trendValue.value > 0);
+    const chartView = ref<'bar' | 'line'>('bar');
+    const trendValue = computed(() => props.stats.trend_value || 0);
+    const isTrendUp = computed(() => trendValue.value > 0);
+    const chartBarangay = ref({ ...props.chartData.barangay }); 
     
 interface IncidentAttachment {
         id: number
@@ -177,8 +179,9 @@ ChartJS.register(
 
 // Chart Setup
 const barangayChart = computed(() => {
-    const labels = Object.keys(props.chartData.barangay || {});
-    const data = Object.values(props.chartData.barangay || {}) as number[];
+    const chartData = chartBarangay.value || {};
+    const labels = Object.keys(chartData);
+    const data = Object.values(chartData) as number[];
     const totalIncidents = data.reduce((sum, val) => sum + val, 0);
 
     const backgroundColors = data.map((value) => {
@@ -188,6 +191,7 @@ const barangayChart = computed(() => {
         if (percentage >= 10) return '#f59e0b';
         return '#6366f1';
     });
+
 
     return {
         labels: labels,
@@ -492,6 +496,20 @@ const sourceChart = computed(() => {
         incidentattachments.value = item.attachments.flat()
     }
 
+    async function addressFilter(item: any) {
+        const filter = item.value
+
+        try {
+            const response = await axios.get('/dashboard/filter-address', {
+                params: { addressType: filter }
+            });
+            chartBarangay.value = response.data || {}; // update reactive copy
+
+        } catch (error) {
+            console.error('Error fetching barangay data:', error);
+        }
+    }
+
 </script>
 
 <template>
@@ -691,7 +709,19 @@ const sourceChart = computed(() => {
                                 >
                             </div>
                         </div>
-
+                        <div class="group flex flex-col gap-1.5 min-w-[220px]">
+                            <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">Address Filter</span>
+                            <div class="relative">
+                                <Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
+                                <select  @change="addressFilter($event.target ?? '')"
+                                    class="w-full appearance-none rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-10 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                                    <option value="barangay" active>Barangay</option>
+                                    <option value="province">Province</option>
+                                    <option value="city">City</option>
+                                </select>
+                                <!-- <ChevronDown class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" /> -->
+                            </div>
+                        </div>
                         <div
                             class="flex rounded-lg border border-sidebar-border/50 bg-muted p-1"
                         >
