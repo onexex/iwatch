@@ -501,63 +501,63 @@ const sourceChart = computed(() => {
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
 
             <div class="flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-sidebar-border/60 bg-card/50 p-3 pl-5 shadow-sm backdrop-blur-md">
-    <div class="flex flex-wrap items-center gap-5">
-        <div class="group flex flex-col gap-1.5">
-            <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">Start Date</span>
-            <div class="relative">
-                <Calendar class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
-                <input type="date" v-model="form.start_date" @change="applyFilters"
-                    class="rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-3 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+            <div class="flex flex-wrap items-center gap-5">
+                <div class="group flex flex-col gap-1.5">
+                    <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">Start Date</span>
+                    <div class="relative">
+                        <Calendar class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
+                        <input type="date" v-model="form.start_date" @change="applyFilters"
+                            class="rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-3 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                    </div>
+                </div>
+
+                <div class="group flex flex-col gap-1.5">
+                    <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">End Date</span>
+                    <div class="relative">
+                        <Calendar class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
+                        <input type="date" v-model="form.end_date" @change="applyFilters"
+                            class="rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-3 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
+                    </div>
+                </div>
+
+                <div class="group flex flex-col gap-1.5 min-w-[220px]">
+                    <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">Classification</span>
+                    <div class="relative">
+                        <Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
+                        <select v-model="form.classification" @change="applyFilters"
+                            class="w-full appearance-none rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-10 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                            <option value="">All Types</option>
+                            <option v-for="c in classifications" :key="c" :value="c">{{ c }}</option>
+                        </select>
+                        <!-- <ChevronDown class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" /> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button @click="resetFilters" 
+                    class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[10px] font-black tracking-widest text-muted-foreground transition-all hover:bg-rose-50 hover:text-rose-500 group">
+                    <FilterX class="h-4 w-4 transition-transform group-hover:rotate-12" />
+                    RESET
+                </button>
+
+                <div class="h-8 w-1px bg-sidebar-border/50 mx-1"></div>
+
+                <button @click="downloadPDF" 
+                    class="flex items-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-[10px] font-black tracking-widest text-white shadow-md transition-all hover:bg-slate-900 active:scale-95">
+                    <FileDown class="h-4 w-4" />
+                    EXPORT PDF
+                </button>
+
+                <button @click="isRiskModalOpen = true"
+                    class="relative flex items-center gap-2 overflow-hidden rounded-xl bg-indigo-600 px-6 py-2.5 text-[10px] font-black tracking-widest text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-700 hover:shadow-indigo-500/50 active:scale-95 group">
+                    <div class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
+                    
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                    <span class="relative">AI RISK AUDIT</span>
+                </button>
             </div>
         </div>
-
-        <div class="group flex flex-col gap-1.5">
-            <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">End Date</span>
-            <div class="relative">
-                <Calendar class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
-                <input type="date" v-model="form.end_date" @change="applyFilters"
-                    class="rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-3 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" />
-            </div>
-        </div>
-
-        <div class="group flex flex-col gap-1.5 min-w-[220px]">
-            <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">Classification</span>
-            <div class="relative">
-                <Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
-                <select v-model="form.classification" @change="applyFilters"
-                    class="w-full appearance-none rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-10 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
-                    <option value="">All Types</option>
-                    <option v-for="c in classifications" :key="c" :value="c">{{ c }}</option>
-                </select>
-                <!-- <ChevronDown class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" /> -->
-            </div>
-        </div>
-    </div>
-
-    <div class="flex items-center gap-3">
-        <button @click="resetFilters" 
-            class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[10px] font-black tracking-widest text-muted-foreground transition-all hover:bg-rose-50 hover:text-rose-500 group">
-            <FilterX class="h-4 w-4 transition-transform group-hover:rotate-12" />
-            RESET
-        </button>
-
-        <div class="h-8 w-1px bg-sidebar-border/50 mx-1"></div>
-
-        <button @click="downloadPDF" 
-            class="flex items-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-[10px] font-black tracking-widest text-white shadow-md transition-all hover:bg-slate-900 active:scale-95">
-            <FileDown class="h-4 w-4" />
-            EXPORT PDF
-        </button>
-
-        <button @click="isRiskModalOpen = true"
-            class="relative flex items-center gap-2 overflow-hidden rounded-xl bg-indigo-600 px-6 py-2.5 text-[10px] font-black tracking-widest text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-700 hover:shadow-indigo-500/50 active:scale-95 group">
-            <div class="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
-            
-             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            <span class="relative">AI RISK AUDIT</span>
-        </button>
-    </div>
-</div>
             <!-- <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-sidebar-border/70 bg-card p-4 shadow-sm">
                 <div class="flex flex-wrap items-center gap-4">
                     <div class="flex flex-col gap-1">

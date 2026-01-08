@@ -51,7 +51,7 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Assesment / Analytics',
+        title: 'Risk Assessment Engine',
         href: '/assessments',
         icon: BookOpen,
     },

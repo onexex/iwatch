@@ -39,10 +39,10 @@ const calculateScore = (severity: string, likelihood: string) => {
     const l = map[likelihood.toLowerCase()] || 1;
     const total = s * l;
     
-    if (total >= 7) return { val: total, label: 'Extreme', color: 'bg-red-600' };
-    if (total >= 4) return { val: total, label: 'High', color: 'bg-orange-500' };
-    if (total >= 2) return { val: total, label: 'Medium', color: 'bg-amber-500' };
-    return { val: total, label: 'Low', color: 'bg-emerald-500' };
+if (total >= 7) return { val: total, label: 'CRITICAL/RED', color: 'bg-red-700' }; // Darker Red
+    if (total >= 4) return { val: total, label: 'HIGH/AMBER', color: 'bg-amber-600' };
+    if (total >= 2) return { val: total, label: 'MED/YELLOW', color: 'bg-yellow-500 text-black' }; // Yellow contrast
+    return { val: total, label: 'LOW/GREEN', color: 'bg-emerald-600' };
 };
 
 
@@ -92,8 +92,81 @@ async function runRiskAssessment() {
     loading.value = true;
     riskData.value = [];
     try {
+
+        
         const response = await ollama.chat({
             model: MODEL_NAME,
+
+            // messages: [
+            //         { 
+            //             role: 'system', 
+            //             content: `You are a Lead Intelligence Analyst . 
+            //             Your mission: Identify high-value targets (HVT), radicalization patterns, and imminent security breaches.
+
+            //             OPERATIVE FRAMEWORK:
+            //             1. THREAT ACTOR PROFILING: Identify if activity suggests coordinated cell behavior vs. lone-wolf actors.
+            //             2. KINETIC INDICATORS: Flag spikes in communications, unauthorized geofence entries, or encrypted data spikes.
+            //             3. VALIDATION: Cross-reference 'stats' (volume) with 'activity' (behavior) to confirm if a threat is credible.
+
+            //             TABLE HEADERS:
+            //             | Target/Threat Identifier | Tier (Severity) | Probability | Tactical Response | Intelligence Gap | Sentinel Indicator |
+
+            //             OPERATIVE RULES:
+            //             - Tier Labels: {Tier 1 (Imminent), Tier 2 (Developing), Tier 3 (Monitored)}.
+            //             - Tactical Response: Specific action for field operatives (e.g., "Begin Surveillance", "Isolate Endpoint").
+            //             - Intelligence Gap: What data is missing to confirm the threat?
+            //             - Sentinel Indicator: The specific "tripwire" to watch for next.
+            //             - Respond ONLY with the Markdown table.`
+            //         },
+            //         { 
+            //             role: 'user', 
+            //             content: `FIELD INTELLIGENCE REPORT:
+            //             ---
+            //             SECTOR/CLASSIFICATION: ${props.dashboardData.filters.classification || 'Unclassified'}
+            //             SURVEILLANCE METRICS: ${JSON.stringify(props.dashboardData.stats)}
+
+            //             Recent Intelligence report: ${JSON.stringify(props.dashboardData.recent)}
+            //             ---
+            //             Analyze for immediate tactical threats and terrorist indicators.` 
+            //         }
+            //     ]
+         
+            // messages: [
+            //     { 
+            //         role: 'system', 
+            //         content: `You are a Senior Risk Officer. Analyze the provided dashboard snapshot.
+                    
+            //         CRITICAL INSTRUCTIONS:
+            //         1. CROSS-REFERENCE: Look for correlations between 'Metric Trends' and 'Recent Activity'. 
+            //         2. ANOMALY DETECTION: Flag any metric that deviates from the average or indicates a failure.
+            //         3. OUTPUT: Respond ONLY with a Markdown table.
+                    
+            //         TABLE HEADERS:
+            //         | Risk Identified | Severity | Likelihood | Mitigation Strategy | Strategic Recommendation | What to Monitor |
+                    
+            //         DATA CONTEXT RULES:
+            //         - Severity labels: {Critical, High, Medium, Low}
+            //         - Likelihood labels: {Frequent, Probable, Remote}
+            //         - Mitigation: Immediate technical fix.
+            //         - Recommendation: Long-term process improvement.`
+            //     },
+            //     { 
+            //         role: 'user', 
+            //         content: `DASHBOARD DATA NORMALIZATION:
+            //         ---
+            //         ACTIVE FILTERS: 
+            //         Category: ${props.dashboardData.filters.classification || 'Global'}
+            //         Timeframe: ${props.dashboardData.filters.start_date} to ${props.dashboardData.filters.end_date}
+                    
+            //         CORE METRICS (SNAPSHOT):
+            //         ${JSON.stringify(props.dashboardData.stats)}
+                    
+            //         RECENT SYSTEM EVENTS:
+            //         ${JSON.stringify(props.dashboardData.recent)}
+            //         ---
+            //         Analyze the data above and identify the top 5 operational or security risks.` 
+            //     }
+            // ],
             messages: [
                 { 
                     role: 'system', 
@@ -104,14 +177,26 @@ async function runRiskAssessment() {
                      RULES:
                     - Do not summarize. 
                     - Respond ONLY with the Markdown table.
+                     - Severity labels: {Critical, High, Medium, Low}
                     - If 'recent_activity' shows a pattern, prioritize it.
-                    - Ensure recommendations are actionable, not vague.` 
+                    - Ensure recommendations are actionable, not vague.
+                     -Please provide a deep-dive risk audit.` 
                 },
-                { 
+          { 
                     role: 'user', 
-                    content: `Dashboard Snapshot: ${JSON.stringify(props.dashboardData)}
-            
-                     Please provide a deep-dive risk audit.` 
+                    content: `DASHBOARD DATA NORMALIZATION:
+                    ---
+                    ACTIVE FILTERS: 
+                    Category: ${props.dashboardData.filters.classification || 'Global'}
+                    Timeframe: ${props.dashboardData.filters.start_date} to ${props.dashboardData.filters.end_date}
+                    
+                    CORE METRICS (SNAPSHOT):
+                    ${JSON.stringify(props.dashboardData.stats)}
+                    
+                    RECENT SYSTEM EVENTS:
+                    ${JSON.stringify(props.dashboardData.recent)}
+                    ---
+                    Analyze the data above and identify the top 5 operational or security risks.` 
                 }
             ]
 
