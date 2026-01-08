@@ -3,6 +3,7 @@
 use Inertia\Inertia;
 use App\Models\SmsMessage;
 use Laravel\Fortify\Features;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AssesmentCtrl;
 use App\Http\Controllers\SMS\SmsController;
@@ -13,6 +14,10 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\IncidentWatermarkController;
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+
     return Inertia::render('auth/Login', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
@@ -22,7 +27,7 @@ Route::get('/', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('dashboard', [DashboardController::class, 'index']);
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('mapping', function () {
     return Inertia::render('IncidentMap');
