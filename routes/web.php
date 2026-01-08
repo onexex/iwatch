@@ -27,7 +27,6 @@ Route::get('/', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('mapping', function () {
     return Inertia::render('IncidentMap');
@@ -36,10 +35,15 @@ Route::get('mapping', function () {
 Route::get('/mapping_incidents', [IncidentController::class, 'index']);
  
 Route::middleware('auth', 'verified')->group(function () {
+    
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/filter-address', [DashboardController::class, 'filterAddress'])->name('dashboard.filter.index');
+
     Route::get('/sms', [SmsController::class, 'index'])->name('sms');
     Route::post('/sms/fetch-message', [SmsController::class, 'store'])->name('sms.fetchMessages');
 
     Route::get('/processed-messages', [IncidentController::class, 'processedMessages'])->name('processed-messages.index');
+    Route::get('/processed-messages/export', [IncidentController::class, 'export'])->name('processed-messages.export');
 
     Route::resource('classifications', ClassificationController::class);
     Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');

@@ -103,33 +103,57 @@ class DashboardController extends Controller
     }
 
     public function export(Request $request)
-{
-    $query = Incident::query();
+    {
+        $query = Incident::query();
 
-    // Apply the exact same filters as your index method
-    if ($request->filled('start_date')) {
-        $query->whereDate('created_at', '>=', $request->start_date);
-    }
-    if ($request->filled('end_date')) {
-        $query->whereDate('created_at', '<=', $request->end_date);
-    }
-    if ($request->filled('classification')) {
-        $query->whereHas('classification', function($q) use ($request) {
-            $q->where('name', $request->classification);
-        });
-    }
+        // Apply the exact same filters as your index method
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('classification')) {
+            $query->whereHas('classification', function($q) use ($request) {
+                $q->where('name', $request->classification);
+            });
+        }
 
-    $data = [
+        $data = [
+            
+            'title' => 'Incident Report',
+            'date' => now()->format('m/d/Y'),
+            'filters' => $request->all(),
+            'incidents' => $query->with(['barangay', 'classification'])->get(),
+            'total' => $query->count(),
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.dashboard-report', $data);
         
-        'title' => 'Incident Report',
-        'date' => now()->format('m/d/Y'),
-        'filters' => $request->all(),
-        'incidents' => $query->with(['barangay', 'classification'])->get(),
-        'total' => $query->count(),
-    ];
+        return $pdf->download('incident-report-' . now()->format('Y-m-d') . '.pdf');
+    }
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.dashboard-report', $data);
-    
-    return $pdf->download('incident-report-' . now()->format('Y-m-d') . '.pdf');
-}
+    public function filterAddress(Request $request)
+    {
+        $query = Incident::query();
+
+        if ($request->addressType == 'barangay') {
+            $byBarangay = (clone $query)->join('barangays', 'incidents.address_id', '=', 'barangays.id')
+                ->select('barangays.barangay as name', DB::raw('count(*) as total'))
+                ->groupBy('barangays.barangay')
+                ->pluck('total', 'name');
+        } else if ($request->addressType == 'city') {
+            $byBarangay = (clone $query)->join('barangays', 'incidents.address_id', '=', 'barangays.id')
+                ->select('barangays.city_municipality as name', DB::raw('count(*) as total'))
+                ->groupBy('barangays.city_municipality')
+                ->pluck('total', 'name');
+        } else if ($request->addressType == 'province') {
+            $byBarangay = (clone $query)->join('barangays', 'incidents.address_id', '=', 'barangays.id')
+                ->select('barangays.province as name', DB::raw('count(*) as total'))
+                ->groupBy('barangays.province')
+                ->pluck('total', 'name');
+        } 
+        return response()->json($byBarangay);
+
+    }
 }

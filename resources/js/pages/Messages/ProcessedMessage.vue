@@ -6,7 +6,7 @@
             <h1 class="mb-4 text-2xl font-bold">Verified Information</h1>
             
             <div class="flex flex-col gap-4">
-                <div class="items-center w-full gap-4 rounded-lg border bg-card p-4 ">
+                <div class="items-center w-full gap-4 rounded-lg border bg-card p-4 flex  justify-between">
                     <div class="grid grid-cols-6 gap-3">
                         <div>
                             <label
@@ -97,6 +97,17 @@
                                 Clear Filters
                             </Button>
                         </div>
+                    </div>
+                    <div>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            class="h-9 px-3 text-xs font-medium transition-all"
+                            @click="exportToExcel"
+                        >
+                            <DownloadIcon class="mr-2 h-3.5 w-3.5 text-black" />
+                            Export to Excel
+                        </Button>
                     </div>
                 </div>
                 <div class="overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -434,8 +445,9 @@
         SelectTrigger,
         SelectValue,
     } from '@/components/ui/select';
-    import { EyeIcon, FileDown, XIcon } from 'lucide-vue-next'
+    import { DownloadIcon, EyeIcon, FileDown, XIcon } from 'lucide-vue-next'
     import { ref } from 'vue'
+import axios from 'axios';
 
     interface IncidentAttachment {
         id: number
@@ -595,6 +607,26 @@
         formDetail.selectedCity = item.barangay.city_municipality
         formDetail.selectedProvince = item.barangay.province
         incidentattachments.value = item.attachments.flat()
+    }
+
+    async function exportToExcel() {
+        const response = await axios.get('/processed-messages/export', {
+            params: {
+               reporter: form.reporter,
+                source: form.source,
+                dateFrom: form.dateFrom,
+                dateTo: form.dateTo,
+            },
+            responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'incidents.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     }
 
 </script>
