@@ -177,7 +177,7 @@ async function runRiskAssessment() {
                      RULES:
                     - Do not summarize. 
                     - Respond ONLY with the Markdown table.
-                     - Severity labels: {Critical, High, Medium, Low}
+                    - Severity labels: {Critical, High, Medium, Low}
                     - If 'recent_activity' shows a pattern, prioritize it.
                     - Ensure recommendations are actionable, not vague.
                      -Please provide a deep-dive risk audit.` 
@@ -248,12 +248,18 @@ watch(() => props.isOpen, (newVal) => {
 </script>
 
 <template>
-   <div v-if="isOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-2 lg:p-4 bg-slate-900/70 backdrop-blur-sm">
+   <div v-if="isOpen" class="fixed inset-0 z-60 flex items-center justify-center p-2 lg:p-4 bg-slate-900/70 backdrop-blur-sm">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-[95vw] xl:max-w-[92vw] h-[90vh] flex flex-col overflow-hidden border border-white/20 animate-in fade-in zoom-in-95 duration-200">
             
             <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-white">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">iwatch Intelligence Audit</h2>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight"> Intelligence Assessments</h2>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded border border-slate-200 bg-slate-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+
+                        <span class="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <span class="text-[9px] font-bold text-slate-500 tracking-widest uppercase">Automated scoring and strategic recommendations using local Granite 3.2 LLM</span>
+                    </div>
                     <p class="text-sm text-slate-500">
                         Based on filters: 
                         <span class="font-mono text-blue-600 bg-blue-50 px-2 rounded">
@@ -275,7 +281,7 @@ watch(() => props.isOpen, (newVal) => {
             <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
                 <div v-if="loading" class="flex flex-col items-center justify-center py-20">
                     <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p class="mt-4 text-slate-600 font-medium">iWatch is analyzing filtered data...</p>
+                    <p class="mt-4 text-slate-600 font-medium">Intelligence is analyzing filtered data...</p>
                 </div>
 
                 <div v-else-if="riskData.length" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">

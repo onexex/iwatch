@@ -104,8 +104,8 @@ async function runRiskAssessment() {
             
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-900">Risk Assessment Engine</h1>
-                    <p class="text-slate-500 text-sm">Automated scoring and strategic recommendations.</p>
+                    <h1 class="text-2xl font-bold text-slate-900">Intelligence Assessment Engine</h1>
+                    <p class="text-slate-500 text-sm">Automated scoring and strategic recommendations using local Granite 3.2 LLM</p>
                 </div>
                 <div v-if="riskData.length" class="flex items-center gap-3">
                     <button @click="exportToCSV" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition shadow-sm">

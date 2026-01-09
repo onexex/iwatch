@@ -29,6 +29,8 @@ import {
     ShieldAlert,
 } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
     import {
         Dialog,
