@@ -98,4 +98,39 @@ class IncidentController extends Controller
             'incidents.xlsx'
         );
     }
+
+    public function print(Request $request)
+    {
+
+        $query = Incident::orderBy('created_at', 'desc')
+            ->with('barangay', 'classification', 'classification', 'attachments');
+
+        if ($request->reporter) {
+            $query = $query->where('reporter', $request->reporter);
+        }
+
+        if ($request->source) {
+            $query = $query->where('source', $request->source);
+        }
+        
+        if ($request->dateFrom && $request->dateTo) {
+            $query = $query->whereBetween('date_of_report', [$request->dateFrom, $request->dateTo]);
+        }
+
+        $incidents = $query->get();
+        $pdf = Pdf::loadView('pdf.processed-messages', [
+            'date' => date('M d, Y'),
+            'incidents' => $incidents,
+            'total' => $incidents->count(),
+            'filters' => [
+                'reporter' => $request->reporter,
+                'source' => $request->source,
+                'dateFrom' => $request->dateFrom,
+                'dateTo' => $request->dateTo,
+            ],
+        ])
+            ->setPaper('legal', 'landscape');;
+
+        return $pdf->stream("processed-messages.pdf");
+    }
 }

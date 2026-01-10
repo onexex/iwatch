@@ -45,6 +45,7 @@ Route::middleware('auth', 'verified')->group(function () {
 
     Route::get('/processed-messages', [IncidentController::class, 'processedMessages'])->name('processed-messages.index');
     Route::get('/processed-messages/export', [IncidentController::class, 'export'])->name('processed-messages.export');
+    Route::get('/processed-messages/print', [IncidentController::class, 'print'])->name('processed-messages.print');
 
     Route::resource('classifications', ClassificationController::class);
     Route::get('/processed-sms-get-reference', [SmsController::class, 'getReference'])->name('sms.reference');

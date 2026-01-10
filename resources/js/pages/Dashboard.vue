@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Bar, Doughnut, Line, Pie } from 'vue-chartjs'; 
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 // import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -92,6 +92,7 @@ const resetFilters = () => {
     const trendValue = computed(() => props.stats.trend_value || 0);
     const isTrendUp = computed(() => trendValue.value > 0);
     const chartBarangay = ref({ ...props.chartData.barangay }); 
+    const addressFilterValue = ref('barangay')
     
 interface IncidentAttachment {
         id: number
@@ -512,6 +513,11 @@ const sourceChart = computed(() => {
         }
     }
 
+    watch(() => props.chartData, () => {
+        chartBarangay.value = props.chartData.barangay
+        addressFilterValue.value = 'barangay'
+    })
+
 </script>
 
 <template>
@@ -715,7 +721,9 @@ const sourceChart = computed(() => {
                             <span class="ml-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 group-focus-within:text-indigo-500 transition-colors">Address Filter</span>
                             <div class="relative">
                                 <Tag class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-500/70" />
-                                <select  @change="addressFilter($event.target ?? '')"
+                                <select
+                                    v-model="addressFilterValue" 
+                                    @change="addressFilter($event.target ?? '')"
                                     class="w-full appearance-none rounded-xl border border-sidebar-border bg-background py-2 pl-10 pr-10 text-xs font-bold outline-none ring-offset-background transition-all focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
                                     <option value="barangay" active>Barangay</option>
                                     <option value="province">Province</option>
