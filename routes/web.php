@@ -41,6 +41,7 @@ Route::middleware('auth', 'verified')->group(function () {
 
     Route::get('/sms', [SmsController::class, 'index'])->name('sms');
     Route::post('/sms/fetch-message', [SmsController::class, 'store'])->name('sms.fetchMessages');
+    Route::put('/sms/updateStatus', [SmsController::class, 'updateStatus'])->name('sms.update');
 
     Route::get('/processed-messages', [IncidentController::class, 'processedMessages'])->name('processed-messages.index');
     Route::get('/processed-messages/export', [IncidentController::class, 'export'])->name('processed-messages.export');

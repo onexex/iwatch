@@ -1,8 +1,8 @@
 <script setup lang="ts">
     import AppLayout from '@/layouts/AppLayout.vue';
     import { type BreadcrumbItem } from '@/types';
-    import { Head, useForm } from '@inertiajs/vue3';
-    import { PlusIcon } from 'lucide-vue-next';
+    import { Head, router, useForm } from '@inertiajs/vue3';
+    import { Archive, PlusIcon } from 'lucide-vue-next';
     import { Loader2 } from 'lucide-vue-next';
     import type { AcceptableValue } from 'reka-ui'
     import { XIcon} from 'lucide-vue-next';
@@ -34,50 +34,64 @@
         TableHeader,
         TableRow,
     } from '@/components/ui/table';
+    
+    import {
+        Pagination,
+        PaginationContent,
+        PaginationItem,
+        PaginationPrevious,
+        PaginationNext,
+        PaginationEllipsis,
+    } from '@/components/ui/pagination'
    
     import SubjectCombobox from './Partials/SubjectCombobox.vue'
     import { Textarea } from '@/components/ui/textarea';
     import { reactive, computed, ref, onBeforeUnmount } from 'vue';
     import axios from 'axios';
+    import Swal from 'sweetalert2';
 
-   
-const props=defineProps<{
-    messages: {
-        id: number;
-        sender: string;
-        message: string;
-        received_at: string;
-        is_read: number;
-        processed_by: string | null;
-    }[];
-    provinces: {
-        province: string;
-        region: string;
-    }[];
-    regions: {
-        region: string;
-    }[];
-    barangays: {
-        barangay: string;
-        id: number;
-        city_municipality: string;
-    }[];
-    cities: {
-        city_municipality: string;
-        province: string;
-    }[];
-    classifications: {
-        id: number;
-        name: string;
-        description: string;
-        other: number;
-    }[];
-    filenumber: string,
-    subjects: string[];
-    methodofcollections: string[];
-    reporters: string[];
-    sources: string[];
-}>();
+    interface Messages {
+        data?: any,
+        per_page?: number,
+        total?: number,
+        current_page?: number,
+    }
+
+    const props=defineProps<{
+        messages: Messages;
+        provinces: {
+            province: string;
+            region: string;
+        }[];
+        regions: {
+            region: string;
+        }[];
+        barangays: {
+            barangay: string;
+            id: number;
+            city_municipality: string;
+        }[];
+        cities: {
+            city_municipality: string;
+            province: string;
+        }[];
+        classifications: {
+            id: number;
+            name: string;
+            description: string;
+            other: number;
+        }[];
+        filenumber: string,
+        subjects: string[];
+        methodofcollections: string[];
+        reporters: string[];
+        sources: string[];
+        filters: {
+            status?: string,
+            dateFrom?: string,
+            dateTo?: string,
+        }
+    }>();
 
 const form = useForm({
     dialogueOpen: false,
@@ -137,34 +151,11 @@ const submit = () => {
     });
 };
 
-const filters = reactive({
-    date_from: '',
-    date_to: '',
-    status: 'Unprocess'  
-});
-
- 
-const filteredMessages = computed(() => {
-    return props.messages.filter((messages) => {
-        
-        const isProcessed = messages.processed_by !== null;
-        let statusMatch = false;
-
-        if (filters.status === 'Processed') statusMatch = isProcessed;
-        else if (filters.status === 'Unprocess') statusMatch = !isProcessed;
-        else if (filters.status === 'Archive') statusMatch = true; 
-
- 
-        const receivedDate = new Date(messages.received_at).setHours(0,0,0,0);
-        const fromDate = filters.date_from ? new Date(filters.date_from).setHours(0,0,0,0) : null;
-        const toDate = filters.date_to ? new Date(filters.date_to).setHours(0,0,0,0) : null;
-
-        const dateFromMatch = fromDate ? receivedDate >= fromDate : true;
-        const dateToMatch = toDate ? receivedDate <= toDate : true;
-
-        return statusMatch && dateFromMatch && dateToMatch;
+    const filters = reactive({
+        date_from: props.filters.dateFrom,
+        date_to: props.filters.dateTo,
+        status: props.filters.status ?? 'unprocessed',  
     });
-});
 
     function onAttachmentsChange(event: Event) {
         const target = event.target as HTMLInputElement
@@ -202,6 +193,75 @@ const filteredMessages = computed(() => {
         }
     }
 
+    
+    function changePage(page: number) {
+        router.get(
+            `/sms?page=${page}`,
+            {
+                status: filters.status,
+                dateFrom: filters.date_from,
+                dateTo: filters.date_to
+            },
+            { preserveScroll: true }
+        )
+    }
+
+    function clearFilter() {
+        Object.assign(filters, { date_from: '', date_to: '', status: 'unprocessed' })
+        router.get(
+            `/sms`,
+            { preserveScroll: true }
+        )
+    }
+
+    function changeStatus() {
+        router.get(
+            `/sms`,
+            {
+                status: filters.status,
+                dateFrom: filters.date_from,
+                dateTo: filters.date_to
+            },
+            { preserveScroll: true }
+        )
+    }
+
+    function changeDate() {
+        if (filters.date_from && filters.date_to) {
+            router.get(
+                `/sms`,
+                {
+                    status: filters.status,
+                    dateFrom: filters.date_from,
+                    dateTo: filters.date_to
+                },
+                { preserveScroll: true }
+            )
+        }
+    }
+
+    function archiveSMS(sms: any, status: string, title: string) {
+        Swal.fire({
+            title: 'Are you sure to ' + title + ' this message?',
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#239117', // Tailwind red-500
+            cancelButtonColor: '#6b7280',  // Tailwind gray-500
+            confirmButtonText: 'Yes, ' + title +  ' it!',
+            cancelButtonText: 'No, cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.put(
+                    `/sms/updateStatus`, {
+                        sms_id: sms.id,
+                        status: status,
+                    }
+                )
+            }
+        })
+    }
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Messages',
@@ -224,11 +284,12 @@ const filteredMessages = computed(() => {
                             <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Status</span>
                             <select 
                                 v-model="filters.status"
+                                @change="changeStatus"
                                 class="h-10 w-[140px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50 cursor-pointer"
                             >
-                                <option value="Unprocess">Unprocessed</option>
-                                <option value="Processed">Processed</option>
-                                <option value="Archive">Archive</option>
+                                <option value="unprocessed">Unprocessed</option>
+                                <option value="processed">Processed</option>
+                                <option value="archived">Archive</option>
                             </select>
                         </div>
 
@@ -239,12 +300,14 @@ const filteredMessages = computed(() => {
                             <div class="flex items-center gap-2">
                                 <input 
                                     type="date" 
+                                    @change="changeDate"
                                     v-model="filters.date_from"
                                     class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50"
                                 />
                                 <span class="text-muted-foreground text-xs">to</span>
                                 <input 
                                     type="date" 
+                                    @change="changeDate"
                                     v-model="filters.date_to"
                                     class="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-accent/50"
                                 />
@@ -254,11 +317,11 @@ const filteredMessages = computed(() => {
 
                     <div class="flex items-center gap-2 mt-auto pb-0.5">
                         <Button 
-                            v-if="filters.date_from || filters.date_to || filters.status !== 'Unprocess'"
+                            v-if="filters.date_from || filters.date_to || filters.status !== 'unprocessed'"
                             variant="outline" 
                             size="sm" 
                             class="h-9 px-3 text-xs font-medium transition-all hover:bg-destructive hover:text-destructive-foreground"
-                            @click="Object.assign(filters, { date_from: '', date_to: '', status: 'Unprocess' })"
+                            @click="clearFilter"
                         >
                             <XIcon class="mr-2 h-3.5 w-3.5" />
                             Clear Filters
@@ -272,7 +335,7 @@ const filteredMessages = computed(() => {
             
             <div class="flex flex-col gap-4">
                 <div class="overflow-hidden rounded-xl border bg-card ">
-                    <div class="relative h-[650px] overflow-auto">
+                    <div class="relative h-[550px] overflow-auto">
                         <Table>
                             <TableHeader
                                 class="sticky top-0 z-10 bg-muted/90  backdrop-blur-md"
@@ -305,7 +368,7 @@ const filteredMessages = computed(() => {
                                     class="group border-b transition-colors last:border-0 hover:bg-muted/30"
                                 > -->
                                 <TableRow
-                                        v-for="sms in filteredMessages"
+                                        v-for="sms in messages.data"
                                         :key="sms.id"
                                         class="group border-b transition-colors last:border-0 hover:bg-muted/30"
                                     >
@@ -346,29 +409,58 @@ const filteredMessages = computed(() => {
                                     <span 
                                         :class="[
                                             'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
-                                            sms.processed_by != null
-                                                ? 'bg-green-50 text-green-700 border-green-200' 
-                                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                            {
+                                                'bg-green-50 text-green-700 border-green-200': sms.status === 'processed',
+                                                'bg-amber-50 text-amber-700 border-amber-200': sms.status === 'unprocessed',
+                                                'bg-gray-100 text-gray-700 border-gray-300': sms.status === 'archived'
+                                            }
                                         ]"
                                     >
-                                        {{ sms.processed_by != null ? 'Processed' : 'Unprocessed' }}
+                                        {{ 
+                                            sms.status === 'processed' ? 'Processed' 
+                                            : sms.status === 'archived' ? 'Archived' 
+                                            : 'Unprocessed' 
+                                        }}
                                     </span>
                                 </TableCell>
 
                                     <TableCell class="px-6 text-right">
-                                        <Button
-                                            variant="secondary"
-                                            size="sm"
-                                            class="h-8 gap-2 px-3 transition-all hover:bg-primary hover:text-primary-foreground"
-                                            @click="addToSMS(sms)"
-                                        >
-                                            <PlusIcon class="h-3.5 w-3.5" />
-                                            <span>Evaluate</span>
-                                        </Button>
+                                        <div class="gap-2 flex ">
+                                            <Button
+                                                v-if="sms.status == 'unprocessed'"
+                                                variant="secondary"
+                                                size="sm"
+                                                class="h-8 gap-2 px-3 transition-all hover:bg-primary hover:text-primary-foreground"
+                                                @click="addToSMS(sms)"
+                                            >
+                                                <PlusIcon class="h-3.5 w-3.5" />
+                                                <span>Evaluate</span>
+                                            </Button>
+                                            <Button
+                                                v-if="sms.status == 'unprocessed'"
+                                                variant="secondary"
+                                                size="sm"
+                                                class="h-8 gap-2 px-3 mr-2 transition-all hover:bg-primary hover:text-primary-foreground"
+                                                @click="archiveSMS(sms, 'archived', 'archive')"
+                                            >
+                                                <Archive class="h-3.5 w-3.5" />
+                                                <span>Archive</span>
+                                            </Button>
+                                            <Button
+                                                v-if="sms.status == 'archived'"
+                                                variant="secondary"
+                                                size="sm"
+                                                class="h-8 gap-2 px-3 mr-2 transition-all hover:bg-primary hover:text-primary-foreground"
+                                                @click="archiveSMS(sms, 'unprocessed', 'unarchive')"
+                                            >
+                                                <Archive class="h-3.5 w-3.5" />
+                                                <span>Unarchive</span>
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
 
-                                    <TableRow v-if="filteredMessages.length === 0">
+                                    <TableRow v-if="messages.data?.length === 0">
                                     <TableCell colspan="5" class="h-[400px] text-center">
                                         </TableCell>
                                 </TableRow>
@@ -377,8 +469,34 @@ const filteredMessages = computed(() => {
                         
                     </div>
                     <p class="text-xs text-muted-foreground italic p-4">
-                        Showing {{ filteredMessages.length }} of {{ props.messages.length }} messages
+                        Showing {{ messages.data.length }} of {{ props.messages.total }} messages
                     </p>
+                    
+                    <Pagination
+                        :items-per-page="messages.per_page ?? 0"
+                        :total="messages.total"
+                        :default-page="messages.current_page"
+                        v-slot="{ page }"
+                    >
+                        <PaginationContent v-slot="{ items }">
+                            <PaginationPrevious @click="changePage(page - 1)" />
+
+                            <template v-for="(item, index) in items" :key="index">
+                                <PaginationItem
+                                    v-if="item.type === 'page'"
+                                    :value="item.value"
+                                    :is-active="item.value === page"
+                                    class="cursor-pointer"
+                                    @click="changePage(item.value)"
+                                >
+                                    {{ item.value }}
+                                </PaginationItem>
+                                <PaginationEllipsis v-else :index="index" />
+                            </template>
+
+                            <PaginationNext @click="changePage(page + 1)" />
+                        </PaginationContent>
+                    </Pagination>
                 </div>
             </div>
 
