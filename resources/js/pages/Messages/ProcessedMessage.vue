@@ -98,7 +98,7 @@
                             </Button>
                         </div>
                     </div>
-                    <div>
+                    <div class="gap-4">
                         <Button 
                             variant="outline" 
                             size="sm" 
@@ -107,6 +107,15 @@
                         >
                             <DownloadIcon class="mr-2 h-3.5 w-3.5 text-black" />
                             Export to Excel
+                        </Button>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            class="h-9 px-3 ml-2 text-xs font-medium transition-all"
+                            @click="printToExcel"
+                        >
+                            <Printer class="mr-2 h-3.5 w-3.5 text-black" />
+                            Print
                         </Button>
                     </div>
                 </div>
@@ -445,7 +454,7 @@
         SelectTrigger,
         SelectValue,
     } from '@/components/ui/select';
-    import { DownloadIcon, EyeIcon, FileDown, XIcon } from 'lucide-vue-next'
+    import { DownloadIcon, EyeIcon, FileDown, Printer, XIcon } from 'lucide-vue-next'
     import { ref } from 'vue'
 import axios from 'axios';
 
@@ -627,6 +636,16 @@ import axios from 'axios';
         document.body.appendChild(link);
         link.click();
         link.remove();
+    }
+
+    async function printToExcel() {
+        const params = new URLSearchParams({
+            reporter: form.reporter,
+            source: form.source,
+            dateFrom: form.dateFrom,
+            dateTo: form.dateTo,
+        }).toString()
+        window.open(`/processed-messages/print?${params}`, '_blank')
     }
 
 </script>
