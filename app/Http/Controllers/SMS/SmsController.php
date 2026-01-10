@@ -15,11 +15,22 @@ use Illuminate\Support\Facades\Auth;
 
 class SmsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $messages = SmsMessage::orderBy('created_at', 'desc')
-            // ->where('is_read', 0)
-            ->get(); 
+        $query = SmsMessage::orderBy('created_at', 'desc');
+
+        if (isset($request->status)) {
+            $query = $query->where('status', $request->status);
+        } else {
+            $query = $query->where('status', 'unprocessed');
+        }
+
+        if (isset($request->dateFrom) && isset($request->dateTo)) {
+            $query = $query->whereBetween('received_at', [$request->dateFrom, $request->dateTo]);
+        }
+
+        $messages = $query->paginate(10); 
+
         $region = Barangay::select('region')
             ->whereIn('region', ['Region X (Northern Mindanao)', 'Region IX (Zamboanga Peninsula)', 'Region XII (SOCCSKSARGEN)', 'Bangsamoro Autonomous Region In Muslim Mindanao (BARMM)', 'Region XI (Davao Region)', 'Region XIII (Caraga)'])
             ->distinct()->get();
@@ -90,6 +101,11 @@ class SmsController extends Controller
             'methodofcollections' => $methodofcollections,
             'reporters' => $reporters,
             'sources' => $sources,
+            'filters' => [
+                'status' => $request->status,
+                'dateFrom' => $request->dateFrom,
+                'dateTo' => $request->dateTo,
+            ],
         ]);
     }
 
@@ -141,7 +157,11 @@ class SmsController extends Controller
         }
 
         SmsMessage::where('id', $request->smsId)
-            ->update(['is_read' => 1,'processed_by' => Auth::user()->id]);
+            ->update([
+                'status' => 'processed',
+                'is_read' => 1,
+                'processed_by' => Auth::user()->id
+            ]);
 
         return redirect()->back()->with('success', 'Successfully processed message.');
     }
@@ -159,5 +179,18 @@ class SmsController extends Controller
         $ref = $classification?->name . '-' . $year . '-' . $num; 
 
         return response()->json($ref);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $message = SmsMessage::find($request->sms_id);
+
+        if ($message) {
+            $message->status = $request->status;
+            $message->save();
+
+            return back()->with('success', 'Message successfully updated status');
+        }
+
     }
 }
